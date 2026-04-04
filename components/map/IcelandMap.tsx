@@ -71,7 +71,7 @@ export default function IcelandMap({
       try {
       const map = new maplibregl.Map({
         container: containerRef.current!,
-        style: `https://api.maptiler.com/maps/satellite-v2/style.json?key=${apiKey}`,
+        style: `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`,
         center: ICELAND_CENTER as [number, number],
         zoom: ICELAND_ZOOM,
         pitch: ICELAND_PITCH,
