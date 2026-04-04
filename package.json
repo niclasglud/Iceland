@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@maptiler/sdk": "^3.11.1",
     "@types/mapbox-gl": "^3.4.1",
     "@types/suncalc": "^1.9.2",
     "clsx": "^2.1.1",

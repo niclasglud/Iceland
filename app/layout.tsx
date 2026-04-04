@@ -33,9 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="preconnect" href="https://api.mapbox.com" />
-        <link rel="preconnect" href="https://events.mapbox.com" />
-        <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" />
+        <link rel="preconnect" href="https://api.maptiler.com" />
       </head>
       <body className="overflow-hidden bg-[#0a0b0e] text-white antialiased">
         {children}

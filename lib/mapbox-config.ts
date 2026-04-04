@@ -1,8 +1,7 @@
-// Mapbox configuration for Iceland 3D terrain app
-// Note: In production, set NEXT_PUBLIC_MAPBOX_TOKEN env variable
-// Set NEXT_PUBLIC_MAPBOX_TOKEN in your .env.local file
-// Get a free token at https://account.mapbox.com
-export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+// MapTiler configuration for Iceland 3D terrain app
+// Set NEXT_PUBLIC_MAPTILER_KEY in Railway environment variables
+export const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY || ''
+export const MAPBOX_TOKEN = MAPTILER_KEY // legacy alias
 
 export const ICELAND_BOUNDS: [number, number, number, number] = [
   -25.0, 63.0, // SW [lng, lat]
@@ -14,16 +13,16 @@ export const ICELAND_ZOOM = 5.5
 export const ICELAND_PITCH = 45
 export const ICELAND_BEARING = 0
 
-// Map style options
+// MapTiler style keys (used with maptilerSdk.MapStyle)
 export const MAP_STYLES = {
-  satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
-  satelliteRaw: 'mapbox://styles/mapbox/satellite-v9',
-  outdoors: 'mapbox://styles/mapbox/outdoors-v12',
-  dark: 'mapbox://styles/mapbox/dark-v11',
-  navigation: 'mapbox://styles/mapbox/navigation-night-v1',
+  satellite: 'SATELLITE',
+  hybrid: 'HYBRID',
+  outdoor: 'OUTDOOR',
+  dark: 'DARK',
+  topo: 'TOPO',
 }
 
-export const DEFAULT_MAP_STYLE = MAP_STYLES.satellite
+export const DEFAULT_MAP_STYLE = 'SATELLITE'
 
 // Marker colors matching PeakVisor style
 export const MARKER_COLORS = {
