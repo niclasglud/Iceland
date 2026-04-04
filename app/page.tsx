@@ -31,8 +31,6 @@ export default function HomePage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
   const [scrubTime, setScrubTime] = useState(new Date())
   const [isToolsOpen, setIsToolsOpen] = useState(false)
-  const [isMapExpanded, setIsMapExpanded] = useState(false)
-  const [isSpotsExpanded, setIsSpotsExpanded] = useState(false)
   const [typeFilter, setTypeFilter] = useState('all')
   const [lightFilter, setLightFilter] = useState('all')
   const [showSunBearing, setShowSunBearing] = useState(false)
@@ -86,7 +84,7 @@ export default function HomePage() {
   )
 
   const showMap = ['map', 'route', 'compass'].includes(activeTab)
-  const showSpots = activeTab === 'spots' || (activeTab === 'map' && !isMapExpanded)
+  const showSpots = activeTab === 'spots'
   const elevationBadge = selectedLocation?.elevation
     ? `▲ ${selectedLocation.elevation.toLocaleString()}m est.`
     : null
@@ -105,17 +103,13 @@ export default function HomePage() {
       <div className="flex flex-1 overflow-hidden relative">
         {/* Spots Panel */}
         {showSpots && (
-          <div
-            className={`flex flex-col overflow-hidden border-r border-white/[0.06] transition-all duration-300 ${
-              isSpotsExpanded || activeTab === 'spots' ? 'w-full' : 'w-[46%]'
-            } ${isMapExpanded ? 'hidden' : ''}`}
-          >
+          <div className="flex flex-col overflow-hidden w-full">
             <SpotsList
               locations={locations}
               selectedLocation={selectedLocation}
               onLocationSelect={handleLocationSelect}
-              isExpanded={isSpotsExpanded}
-              onExpandToggle={() => setIsSpotsExpanded((v) => !v)}
+              isExpanded={true}
+              onExpandToggle={() => setActiveTab('map')}
               typeFilter={typeFilter}
               lightFilter={lightFilter}
               onTypeFilterChange={setTypeFilter}
@@ -126,11 +120,7 @@ export default function HomePage() {
 
         {/* Map Panel */}
         {showMap && (
-          <div
-            className={`relative flex-1 overflow-hidden transition-all duration-300 ${
-              isSpotsExpanded ? 'hidden' : ''
-            }`}
-          >
+          <div className="relative flex-1 overflow-hidden">
             <IcelandMap
               locations={locations}
               selectedLocation={selectedLocation}
@@ -139,38 +129,15 @@ export default function HomePage() {
               showSunBearing={showSunBearing}
               sunAzimuth={sunInfo.azimuth}
               sunAltitude={sunInfo.altitude}
-              isExpanded={isMapExpanded}
+              isExpanded={true}
               activeTab={activeTab}
               auroraData={auroraData}
             />
-
-            {/* Collapse/Expand map */}
-            {activeTab === 'map' && !isSpotsExpanded && (
-              <button
-                onClick={() => setIsMapExpanded((v) => !v)}
-                className="absolute bottom-4 left-4 flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f5a623] text-black text-sm font-semibold shadow-lg z-10 active:scale-95 transition-transform"
-              >
-                <span>{isMapExpanded ? '↙' : '↗'}</span>
-                {isMapExpanded ? 'Collapse Map' : 'Expand Map'}
-              </button>
-            )}
 
             {/* Elevation badge */}
             {elevationBadge && (
               <div className="absolute bottom-4 right-4 flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/70 border border-white/10 text-white text-xs font-medium z-10">
                 {elevationBadge}
-              </div>
-            )}
-
-            {/* Expand spots / map split buttons */}
-            {activeTab === 'map' && !isMapExpanded && !isSpotsExpanded && (
-              <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                <button
-                  onClick={() => setIsSpotsExpanded(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f5a623] text-black text-xs font-semibold shadow-lg active:scale-95 transition-transform"
-                >
-                  ↗ Expand Spots
-                </button>
               </div>
             )}
           </div>
@@ -221,7 +188,13 @@ export default function HomePage() {
         sunInfo={sunInfo}
         auroraData={auroraData}
         selectedLocation={selectedLocation}
-        onShowSunBearing={setShowSunBearing}
+        onShowSunBearing={(v: boolean) => {
+          setShowSunBearing(v)
+          if (v) {
+            setActiveTab('map')
+            setIsToolsOpen(false)
+          }
+        }}
         showSunBearing={showSunBearing}
       />
     </div>
