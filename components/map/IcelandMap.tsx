@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as maplibregl from 'maplibre-gl'
 import {
-  MAPTILER_KEY,
   ICELAND_CENTER,
   ICELAND_ZOOM,
   ICELAND_PITCH,
@@ -53,15 +52,26 @@ export default function IcelandMap({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
-    if (!MAPTILER_KEY) {
-      setMapError('MapTiler API key is missing. Set NEXT_PUBLIC_MAPTILER_KEY on Railway.')
-      return
-    }
+    const init = async () => {
+      // Fetch key at runtime from server-side API (avoids NEXT_PUBLIC_ build-time issues)
+      let apiKey = ''
+      try {
+        const res = await fetch('/api/config')
+        const data = await res.json()
+        apiKey = data.maptilerKey || ''
+      } catch {
+        // ignore fetch error, will show key-missing error below
+      }
 
-    try {
+      if (!apiKey) {
+        setMapError('MapTiler API key missing. Set MAPTILER_KEY in Railway environment variables.')
+        return
+      }
+
+      try {
       const map = new maplibregl.Map({
-        container: containerRef.current,
-        style: `https://api.maptiler.com/maps/satellite-v2/style.json?key=${MAPTILER_KEY}`,
+        container: containerRef.current!,
+        style: `https://api.maptiler.com/maps/satellite-v2/style.json?key=${apiKey}`,
         center: ICELAND_CENTER as [number, number],
         zoom: ICELAND_ZOOM,
         pitch: ICELAND_PITCH,
@@ -75,7 +85,7 @@ export default function IcelandMap({
         // 3-D terrain
         map.addSource('maptiler-dem', {
           type: 'raster-dem',
-          url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${MAPTILER_KEY}`,
+          url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${apiKey}`,
           tileSize: 256,
         })
         map.setTerrain({ source: 'maptiler-dem', exaggeration: 1.8 })
@@ -122,6 +132,9 @@ export default function IcelandMap({
       console.error('[IcelandMap] init failed:', err)
       setMapError(`Init failed: ${err instanceof Error ? err.message : String(err)}`)
     }
+    } // end init()
+
+    init()
 
     return () => {
       mapRef.current?.remove()
