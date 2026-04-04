@@ -67,7 +67,6 @@ export default function IcelandMap({
 
     const initMap = async () => {
       const maptilerSdk = await import('@maptiler/sdk')
-      await import('@maptiler/sdk/dist/maptiler-sdk.css')
 
       maptilerSdk.config.apiKey = MAPTILER_KEY
 
