@@ -66,6 +66,7 @@ export default function IcelandMap({
     if (mapRef.current) return
 
     const initMap = async () => {
+      try {
       const maptilerSdk = await import('@maptiler/sdk')
 
       maptilerSdk.config.apiKey = MAPTILER_KEY
@@ -141,6 +142,9 @@ export default function IcelandMap({
         applyLighting(map, sunAzimuthRef.current, sunAltitudeRef.current)
         addMarkers(map, locations, selectedLocation, onLocationSelect, maptilerSdk)
       })
+      } catch (err) {
+        console.error('[IcelandMap] init failed:', err)
+      }
     }
 
     initMap()
