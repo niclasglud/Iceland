@@ -11,6 +11,7 @@ import TopNav from '@/components/layout/TopNav'
 import BottomPanel from '@/components/layout/BottomPanel'
 import ToolsDrawer from '@/components/layout/ToolsDrawer'
 import SpotsList from '@/components/spots/SpotsList'
+import SpotDetail from '@/components/spots/SpotDetail'
 import AuroraBar from '@/components/aurora/AuroraBar'
 
 // Dynamically import Mapbox component (no SSR)
@@ -35,6 +36,7 @@ export default function HomePage() {
   const [lightFilter, setLightFilter] = useState('all')
   const [showSunBearing, setShowSunBearing] = useState(false)
   const [isNightMode, setIsNightMode] = useState(false)
+  const [detailLocation, setDetailLocation] = useState<Location | null>(null)
 
   const [sunInfo, setSunInfo] = useState<SunInfo>(() =>
     getSunInfo(new Date(), ICELAND_CENTER[0], ICELAND_CENTER[1])
@@ -78,10 +80,17 @@ export default function HomePage() {
   const handleLocationSelect = useCallback(
     (location: Location) => {
       setSelectedLocation(location)
-      if (activeTab !== 'map') setActiveTab('map')
+      setDetailLocation(location)
     },
-    [activeTab]
+    []
   )
+
+  const handleCloseDetail = useCallback(() => setDetailLocation(null), [])
+
+  const handleViewOnMap = useCallback(() => {
+    setDetailLocation(null)
+    setActiveTab('map')
+  }, [])
 
   const showMap = ['map', 'route', 'compass'].includes(activeTab)
   const showSpots = activeTab === 'spots'
@@ -181,6 +190,15 @@ export default function HomePage() {
         isNightMode={isNightMode}
         onNightModeToggle={() => setIsNightMode((v) => !v)}
       />
+
+      {/* Full-screen spot detail overlay */}
+      {detailLocation && (
+        <SpotDetail
+          location={detailLocation}
+          onClose={handleCloseDetail}
+          onViewOnMap={handleViewOnMap}
+        />
+      )}
 
       <ToolsDrawer
         isOpen={isToolsOpen}
