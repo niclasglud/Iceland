@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #0a0b0e;
+  --bg-secondary: #0f1117;
+  --bg-card: rgba(18, 20, 28, 0.95);
+  --bg-elevated: rgba(25, 27, 38, 0.98);
+  --accent-orange: #f5a623;
+  --accent-blue: #4a9eff;
+  --accent-aurora: #00ff88;
+  --accent-purple: #8b5cf6;
+  --text-primary: #ffffff;
+  --text-secondary: #8a8f9e;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mapbox overrides */
+.mapboxgl-map {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl-top-left {
+  display: none !important;
+}
+.mapboxgl-ctrl-top-right {
+  top: 12px !important;
+  right: 12px !important;
+}
+.mapboxgl-ctrl-group {
+  background: rgba(18, 20, 28, 0.95) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+}
+.mapboxgl-ctrl-group button {
+  background: transparent !important;
+  color: #fff !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  width: 36px !important;
+  height: 36px !important;
+}
+.mapboxgl-ctrl-group button:last-child { border-bottom: none !important; }
+.mapboxgl-ctrl-group button:hover { background: rgba(245,166,35,0.12) !important; }
+.mapboxgl-ctrl-icon { filter: invert(1); }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+/* Range slider — sun timeline */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #3a1a00 0%, #c47d0e 20%, #f5a623 50%, #c47d0e 80%, #1a0a1a 100%);
+  outline: none;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fffbe0 0%, #f5a623 55%, #b36000 100%);
+  box-shadow: 0 0 14px rgba(245,166,35,0.9), 0 2px 6px rgba(0,0,0,0.5);
+  cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,0.6);
+}
+input[type='range']::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fffbe0 0%, #f5a623 55%, #b36000 100%);
+  box-shadow: 0 0 14px rgba(245,166,35,0.9);
+  cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,0.6);
+}
+
+/* Pill button */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 13px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: #8a8f9e;
+  white-space: nowrap;
+  user-select: none;
+}
+.pill-btn:hover { border-color: rgba(255,255,255,0.18); color: #fff; }
+.pill-btn.active {
+  background: #f5a623;
+  border-color: #f5a623;
+  color: #000;
+  font-weight: 600;
+}
+.pill-btn.active-blue {
+  background: #4a9eff;
+  border-color: #4a9eff;
+  color: #fff;
+}
+.pill-btn.active-aurora {
+  background: rgba(0,255,136,0.15);
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+/* Card */
+.card {
+  background: rgba(18,20,28,0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+}
+
+/* Spot card */
+.spot-card {
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.spot-card:hover {
+  background: rgba(25,27,38,0.98) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+}
+.spot-card.selected {
+  border-color: #f5a623 !important;
+  background: rgba(245,166,35,0.07) !important;
+}
+
+/* Aurora glow */
+@keyframes aurora-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.aurora-text {
+  background: linear-gradient(90deg, #00ff88, #06b6d4, #8b5cf6, #00ff88);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: aurora-shift 4s ease infinite;
+}
+
+/* F-road badge */
+.f-road-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(245,166,35,0.15);
+  border: 1px solid rgba(245,166,35,0.3);
+  color: #f5a623;
+}
+
+/* Hidden gem badge */
+.gem-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #10b981;
+}
+
+/* Highland badge */
+.highland-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(245,166,35,0.12);
+  border: 1px solid rgba(245,166,35,0.25);
+  color: #f5a623;
+}
+
+/* No select */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .safe-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
+}

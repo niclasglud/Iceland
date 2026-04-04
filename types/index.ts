@@ -1,0 +1,123 @@
+export type Region =
+  | 'ring-road'
+  | 'highlands'
+  | 'westfjords'
+  | 'snaefellsnes'
+  | 'reykjanes'
+  | 'east'
+  | 'north'
+  | 'south'
+
+export type LocationType =
+  | 'waterfall'
+  | 'glacier'
+  | 'volcano'
+  | 'lake'
+  | 'canyon'
+  | 'beach'
+  | 'hot-spring'
+  | 'lava'
+  | 'mountain'
+  | 'ruins'
+  | 'geothermal'
+  | 'valley'
+
+export type Category = 'popular' | 'hidden-gem' | 'highland'
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
+export type BestLight =
+  | 'sunrise'
+  | 'golden-hour'
+  | 'midnight-sun'
+  | 'overcast'
+  | 'northern-lights'
+  | 'sunset'
+export type Difficulty = 'easy' | 'moderate' | 'hard' | 'extreme'
+
+export interface Location {
+  id: string
+  name: string
+  icelandicName?: string
+  coordinates: [number, number] // [lng, lat]
+  elevation?: number // meters above sea level
+  region: Region
+  type: LocationType
+  category: Category
+  fRoad?: string // e.g. "F35" — requires 4WD
+  bestSeason: Season[]
+  bestLight: BestLight[]
+  auroraRating?: 1 | 2 | 3 // 3=darkest sky, best for aurora
+  description: string
+  tags: string[]
+  thumbnail: string // Unsplash image URL
+  difficulty?: Difficulty
+  distance?: number // km from Reykjavik
+  hikingInfo?: string
+}
+
+export interface AuroraData {
+  kpIndex: number // 0–9
+  kpForecast: { time: string; kp: number }[]
+  probability: number // 0–100%
+  bestViewingTime?: string
+  cloudCover?: number // 0–100%
+}
+
+export interface WeatherData {
+  temperature: number // Celsius
+  condition: string
+  windSpeed: number // km/h
+  windDirection?: number
+  cloudCover: number // 0–100%
+  forecast: DayForecast[]
+  location?: string
+  elevation?: number
+}
+
+export interface DayForecast {
+  day: string // e.g. "Sat"
+  icon: string
+  high: number
+  low: number
+  windSpeed: number
+  precipitation?: number // mm
+  quality: 'excellent' | 'good' | 'fair' | 'poor'
+}
+
+export interface SunInfo {
+  date: Date
+  dawn: Date
+  sunrise: Date
+  goldenHourEnd: Date
+  noon: Date
+  goldenHour: Date
+  sunset: Date
+  dusk: Date
+  night: Date
+  nadir: Date
+  isMidnightSun: boolean
+  isPolarNight: boolean
+  azimuth: number // degrees 0-360
+  altitude: number // degrees -90 to 90
+}
+
+export interface MoonInfo {
+  phase: number // 0–1
+  phaseName: string
+  illumination: number // 0–100%
+  rise?: Date
+  set?: Date
+}
+
+export type ActiveTab = 'map' | 'spots' | 'route' | 'compass' | 'aurora' | 'weather'
+
+export interface AppState {
+  activeTab: ActiveTab
+  selectedLocation: Location | null
+  scrubTime: Date
+  isToolsOpen: boolean
+  isMapExpanded: boolean
+  isSpotsExpanded: boolean
+  typeFilter: LocationType | 'all'
+  lightFilter: BestLight | 'all'
+  regionFilter: Region | 'all'
+}
