@@ -59,7 +59,7 @@ export default function IcelandMap({
   sunAzimuthRef.current = sunAzimuth
   sunAltitudeRef.current = sunAltitude
 
-  // ── Initialise MapTiler map ──────────────────────────────────────────────────
+  // ── Initialise maplibre-gl map with MapTiler style ───────────────────────────
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!mapContainerRef.current) return
@@ -67,81 +67,83 @@ export default function IcelandMap({
 
     const initMap = async () => {
       try {
-      const maptilerSdk = await import('@maptiler/sdk')
+        const maplibregl = await import('maplibre-gl')
+        const ML = maplibregl.default ?? maplibregl
 
-      maptilerSdk.config.apiKey = MAPTILER_KEY
+        const styleUrl = `https://api.maptiler.com/maps/satellite-v2/style.json?key=${MAPTILER_KEY}`
 
-      const map = new maptilerSdk.Map({
-        container: mapContainerRef.current!,
-        style: maptilerSdk.MapStyle.SATELLITE,
-        center: ICELAND_CENTER,
-        zoom: ICELAND_ZOOM,
-        pitch: ICELAND_PITCH,
-        bearing: ICELAND_BEARING,
-        attributionControl: false,
-        geolocateControl: false,
-        navigationControl: false,
-        terrainControl: false,
-      })
-
-      mapRef.current = map
-
-      map.on('load', () => {
-        // 3D terrain via MapTiler terrain-rgb tiles
-        map.addSource('maptiler-dem', {
-          type: 'raster-dem',
-          url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${MAPTILER_KEY}`,
-          tileSize: 256,
-        })
-        map.setTerrain({ source: 'maptiler-dem', exaggeration: 1.8 })
-
-        // Atmospheric sky layer (cast required — MapTiler types omit 'sky')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map.addLayer({
-          id: 'sky',
-          type: 'sky',
-          paint: {
-            'sky-type': 'atmosphere',
-            'sky-atmosphere-sun': [sunAzimuthRef.current, 90 - sunAltitudeRef.current],
-            'sky-atmosphere-sun-intensity': 15,
-          },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any)
-
-        // Aurora overlay GeoJSON
-        map.addSource('aurora-zones', {
-          type: 'geojson',
-          data: buildAuroraGeoJSON(auroraData?.kpIndex ?? 0),
-        })
-        map.addLayer({
-          id: 'aurora-fill',
-          type: 'circle',
-          source: 'aurora-zones',
-          paint: {
-            'circle-radius': 60,
-            'circle-color': '#00ff88',
-            'circle-opacity': 0.12,
-            'circle-blur': 1,
-          },
-          layout: { visibility: activeTab === 'aurora' ? 'visible' : 'none' },
-        })
-        map.addLayer({
-          id: 'aurora-stroke',
-          type: 'circle',
-          source: 'aurora-zones',
-          paint: {
-            'circle-radius': 60,
-            'circle-color': 'transparent',
-            'circle-stroke-width': 1.5,
-            'circle-stroke-color': '#00ff88',
-            'circle-stroke-opacity': 0.3,
-          },
-          layout: { visibility: activeTab === 'aurora' ? 'visible' : 'none' },
+        const map = new ML.Map({
+          container: mapContainerRef.current!,
+          style: styleUrl,
+          center: ICELAND_CENTER,
+          zoom: ICELAND_ZOOM,
+          pitch: ICELAND_PITCH,
+          bearing: ICELAND_BEARING,
+          attributionControl: false,
         })
 
-        applyLighting(map, sunAzimuthRef.current, sunAltitudeRef.current)
-        addMarkers(map, locations, selectedLocation, onLocationSelect, maptilerSdk)
-      })
+        mapRef.current = map
+
+        map.on('load', () => {
+          // 3D terrain via MapTiler terrain-rgb tiles
+          map.addSource('maptiler-dem', {
+            type: 'raster-dem',
+            url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${MAPTILER_KEY}`,
+            tileSize: 256,
+          })
+          map.setTerrain({ source: 'maptiler-dem', exaggeration: 1.8 })
+
+          // Atmospheric sky layer
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          map.addLayer({
+            id: 'sky',
+            type: 'sky',
+            paint: {
+              'sky-type': 'atmosphere',
+              'sky-atmosphere-sun': [sunAzimuthRef.current, 90 - sunAltitudeRef.current],
+              'sky-atmosphere-sun-intensity': 15,
+            },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any)
+
+          // Aurora overlay GeoJSON
+          map.addSource('aurora-zones', {
+            type: 'geojson',
+            data: buildAuroraGeoJSON(auroraData?.kpIndex ?? 0),
+          })
+          map.addLayer({
+            id: 'aurora-fill',
+            type: 'circle',
+            source: 'aurora-zones',
+            paint: {
+              'circle-radius': 60,
+              'circle-color': '#00ff88',
+              'circle-opacity': 0.12,
+              'circle-blur': 1,
+            },
+            layout: { visibility: activeTab === 'aurora' ? 'visible' : 'none' },
+          })
+          map.addLayer({
+            id: 'aurora-stroke',
+            type: 'circle',
+            source: 'aurora-zones',
+            paint: {
+              'circle-radius': 60,
+              'circle-color': 'transparent',
+              'circle-stroke-width': 1.5,
+              'circle-stroke-color': '#00ff88',
+              'circle-stroke-opacity': 0.3,
+            },
+            layout: { visibility: activeTab === 'aurora' ? 'visible' : 'none' },
+          })
+
+          applyLighting(map, sunAzimuthRef.current, sunAltitudeRef.current)
+          addMarkers(map, locations, selectedLocation, onLocationSelect, ML)
+        })
+
+        map.on('error', (e) => {
+          console.error('[IcelandMap] map error:', e)
+        })
       } catch (err) {
         console.error('[IcelandMap] init failed:', err)
       }
@@ -196,8 +198,9 @@ export default function IcelandMap({
     const map = mapRef.current
     if (!map || !map.isStyleLoaded()) return
     const addMarkersAsync = async () => {
-      const maptilerSdk = await import('@maptiler/sdk')
-      addMarkers(map, locations, selectedLocation, onLocationSelect, maptilerSdk)
+      const maplibregl = await import('maplibre-gl')
+      const ML = maplibregl.default ?? maplibregl
+      addMarkers(map, locations, selectedLocation, onLocationSelect, ML)
     }
     addMarkersAsync()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -319,7 +322,7 @@ function addMarkers(
   selectedLocation: Location | null,
   onLocationSelect: (loc: Location) => void,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sdk: any
+  ML: any
 ) {
   const locationIds = new Set(locations.map((l) => l.id))
   markersRef.current.forEach((marker, id) => {
@@ -341,7 +344,7 @@ function addMarkers(
     el.title = location.name
     el.addEventListener('click', (e) => { e.stopPropagation(); onLocationSelect(location) })
 
-    const marker = new sdk.Marker({ element: el, anchor: 'center' })
+    const marker = new ML.Marker({ element: el, anchor: 'center' })
       .setLngLat(location.coordinates)
       .addTo(map)
 

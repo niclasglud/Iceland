@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="preconnect" href="https://api.maptiler.com" />
-        <link rel="stylesheet" href="https://unpkg.com/@maptiler/sdk@3.11.1/dist/maptiler-sdk.css" />
+        <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css" />
       </head>
       <body className="overflow-hidden bg-[#0a0b0e] text-white antialiased">
         {children}
