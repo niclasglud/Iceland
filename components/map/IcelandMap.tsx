@@ -90,18 +90,6 @@ export default function IcelandMap({
         })
         map.setTerrain({ source: 'maptiler-dem', exaggeration: 1.8 })
 
-        // Sky atmosphere
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(map as any).addLayer({
-          id: 'sky',
-          type: 'sky',
-          paint: {
-            'sky-type': 'atmosphere',
-            'sky-atmosphere-sun': [sunAzimuth, 90 - sunAltitude],
-            'sky-atmosphere-sun-intensity': 15,
-          },
-        })
-
         // Aurora GeoJSON
         map.addSource('aurora-zones', {
           type: 'geojson',
@@ -149,10 +137,7 @@ export default function IcelandMap({
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
-    if (map.getLayer('sky')) {
-      map.setPaintProperty('sky', 'sky-atmosphere-sun', [sunAzimuth, 90 - sunAltitude])
-    }
-    const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : '#334455'
+const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : '#334455'
     const intensity = Math.max(0.1, Math.min(1, (sunAltitude + 10) / 70))
     map.setLight({ anchor: 'map', color: lightColor, intensity })
   }, [scrubTime, sunAzimuth, sunAltitude, mapReady])
