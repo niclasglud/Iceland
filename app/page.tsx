@@ -277,6 +277,11 @@ export default function HomePage() {
           location={detailLocation}
           onClose={handleCloseDetail}
           onViewOnMap={handleViewOnMap}
+          onNavigate={(loc) => {
+            setNavigationTarget(loc)
+            setActiveTab('map')
+            setDetailLocation(null)
+          }}
         />
       )}
 

@@ -195,6 +195,8 @@ export default function ToolsDrawer({
 }: ToolsDrawerProps) {
   const [fromMode, setFromMode] = useState<'current' | 'start'>('current')
   const [searchValue, setSearchValue] = useState('')
+  const [dlState, setDlState] = useState<'idle' | 'downloading' | 'done'>('idle')
+  const [dlProgress, setDlProgress] = useState(0)
   const drawerRef = useRef<HTMLDivElement>(null)
 
   // Prevent body scroll when open
@@ -414,21 +416,120 @@ export default function ToolsDrawer({
               </button>
             )}
 
-            {/* Offline tiles */}
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-white">Offline tiles</span>
-                <span className="text-[11px]" style={{ color: '#8a8f9e' }}>
-                  zoom 8–13 · ~120 MB
-                </span>
+            {/* Offline tiles / Open in Maps */}
+            <div className="flex flex-col gap-2">
+              {/* Open in native maps app */}
+              {selectedLocation && (
+                <button
+                  onClick={() => {
+                    const [lng, lat] = selectedLocation.coordinates
+                    const label = encodeURIComponent(selectedLocation.name)
+                    // Try Apple Maps on iOS, Google Maps otherwise
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+                    const url = isIOS
+                      ? `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${label}&travelmode=driving`
+                    window.open(url, '_blank')
+                  }}
+                  className="flex items-center justify-center gap-2 w-full rounded-lg py-2 text-xs font-semibold"
+                  style={{
+                    background: 'rgba(74,158,255,0.12)',
+                    border: '1px solid rgba(74,158,255,0.3)',
+                    color: '#4a9eff', cursor: 'pointer',
+                  }}
+                >
+                  <Navigation size={12} />
+                  Open in Maps App
+                </button>
+              )}
+
+              {/* Offline tile cache */}
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-medium text-white">Offline tiles</span>
+                  <span className="text-[11px]" style={{ color: '#8a8f9e' }}>
+                    {dlState === 'done' ? '✓ Cached for offline use' : 'Iceland · zoom 7–12'}
+                  </span>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (dlState !== 'idle') return
+                    setDlState('downloading')
+                    setDlProgress(0)
+
+                    // Fetch MapTiler key to cache tiles
+                    let apiKey = ''
+                    try {
+                      const r = await fetch('/api/config')
+                      const d = await r.json()
+                      apiKey = d.maptilerKey || ''
+                    } catch { /* ignore */ }
+
+                    if (!apiKey) { setDlState('idle'); return }
+
+                    // Cache a set of overview tiles for Iceland (zoom 7-9)
+                    const tilesToCache: string[] = []
+                    for (let z = 7; z <= 9; z++) {
+                      const tileCount = Math.pow(2, z)
+                      // Iceland approx tile range
+                      const xMin = Math.floor(((-25 + 180) / 360) * tileCount)
+                      const xMax = Math.floor(((-13 + 180) / 360) * tileCount)
+                      const latRad = (lat: number) => (lat * Math.PI) / 180
+                      const yMin = Math.floor((1 - Math.log(Math.tan(latRad(66.6)) + 1 / Math.cos(latRad(66.6))) / Math.PI) / 2 * tileCount)
+                      const yMax = Math.floor((1 - Math.log(Math.tan(latRad(63.3)) + 1 / Math.cos(latRad(63.3))) / Math.PI) / 2 * tileCount)
+                      for (let x = xMin; x <= xMax; x++) {
+                        for (let y = yMin; y <= yMax; y++) {
+                          tilesToCache.push(`https://api.maptiler.com/tiles/satellite/${z}/${x}/${y}.jpg?key=${apiKey}`)
+                        }
+                      }
+                    }
+
+                    try {
+                      const cache = await caches.open('iceland-tiles-v1')
+                      let done = 0
+                      const total = tilesToCache.length
+                      await Promise.all(
+                        tilesToCache.map(async (url) => {
+                          try {
+                            if (!(await cache.match(url))) {
+                              const res = await fetch(url)
+                              if (res.ok) await cache.put(url, res)
+                            }
+                          } catch { /* skip failed tile */ }
+                          done++
+                          setDlProgress(Math.round((done / total) * 100))
+                        })
+                      )
+                      setDlState('done')
+                    } catch {
+                      setDlState('idle')
+                    }
+                  }}
+                  className="flex items-center gap-1 text-xs font-semibold"
+                  style={{
+                    color: dlState === 'done' ? '#10b981' : dlState === 'downloading' ? '#8a8f9e' : '#f5a623',
+                    background: 'none', border: 'none', cursor: dlState === 'idle' ? 'pointer' : 'default',
+                  }}
+                >
+                  {dlState === 'downloading' ? (
+                    <span>{dlProgress}%</span>
+                  ) : dlState === 'done' ? (
+                    <span>✓ Done</span>
+                  ) : (
+                    <>
+                      <Download size={13} />
+                      Download
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                className="flex items-center gap-1 text-xs font-semibold transition-colors"
-                style={{ color: '#f5a623' }}
-              >
-                <Download size={13} />
-                Download
-              </button>
+
+              {/* Download progress bar */}
+              {dlState === 'downloading' && (
+                <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 99, background: '#f5a623', width: `${dlProgress}%`, transition: 'width 0.2s' }} />
+                </div>
+              )}
             </div>
           </Section>
 

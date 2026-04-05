@@ -8,6 +8,7 @@ interface SpotDetailProps {
   location: Location
   onClose: () => void
   onViewOnMap: () => void
+  onNavigate?: (location: Location) => void
 }
 
 const REGION_INFO: Record<string, { label: string; color: string; bg: string }> = {
@@ -65,7 +66,7 @@ const THUMB_FALLBACK: Record<string, string> = {
   valley:      'linear-gradient(160deg,#081a0f,#15803d)',
 }
 
-export default function SpotDetail({ location, onClose, onViewOnMap }: SpotDetailProps) {
+export default function SpotDetail({ location, onClose, onViewOnMap, onNavigate }: SpotDetailProps) {
   const region = REGION_INFO[location.region] ?? { label: location.region, color: '#8a8f9e', bg: 'rgba(138,143,158,0.15)' }
   const fallback = THUMB_FALLBACK[location.type] ?? 'linear-gradient(160deg,#111,#333)'
   const typeIcon = TYPE_ICONS[location.type] ?? '📍'
@@ -282,27 +283,49 @@ export default function SpotDetail({ location, onClose, onViewOnMap }: SpotDetai
         </Section>
 
         {/* CTA buttons */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-          <button
-            onClick={onViewOnMap}
-            style={{
-              flex: 1, height: 48, borderRadius: 14, fontWeight: 700, fontSize: 15,
-              background: '#f5a623', color: '#0a0b0e', border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(245,166,35,0.4)',
-            }}
-          >
-            🗺️ View on Map
-          </button>
-          <button
-            onClick={onClose}
-            style={{
-              width: 48, height: 48, borderRadius: 14, fontWeight: 700,
-              background: 'rgba(255,255,255,0.07)', color: '#fff',
-              border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 18,
-            }}
-          >
-            ✕
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+          {/* Start Navigation — primary CTA */}
+          {onNavigate && (
+            <button
+              onClick={() => { onNavigate(location); onClose() }}
+              style={{
+                width: '100%', height: 52, borderRadius: 14, fontWeight: 700, fontSize: 16,
+                background: '#f5a623', color: '#0a0b0e', border: 'none', cursor: 'pointer',
+                boxShadow: '0 4px 24px rgba(245,166,35,0.45)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M9 2L16 9L9 16" stroke="#0a0b0e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 9H16" stroke="#0a0b0e" strokeWidth="2.5" strokeLinecap="round"/>
+              </svg>
+              Start Navigation
+            </button>
+          )}
+
+          {/* View on Map + Close row */}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              onClick={onViewOnMap}
+              style={{
+                flex: 1, height: 48, borderRadius: 14, fontWeight: 600, fontSize: 14,
+                background: 'rgba(255,255,255,0.07)', color: '#fff',
+                border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer',
+              }}
+            >
+              🗺️ View on Map
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                width: 48, height: 48, borderRadius: 14, fontWeight: 700,
+                background: 'rgba(255,255,255,0.07)', color: '#fff',
+                border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 18,
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </div>
     </div>
