@@ -290,6 +290,7 @@ export default function HomePage() {
         onClose={() => setIsToolsOpen(false)}
         sunInfo={sunInfo}
         auroraData={auroraData}
+        locations={locations}
         selectedLocation={selectedLocation}
         onShowSunBearing={(v: boolean) => {
           setShowSunBearing(v)

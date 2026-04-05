@@ -22,6 +22,7 @@ interface ToolsDrawerProps {
   onClose: () => void
   sunInfo: SunInfo
   auroraData: AuroraData
+  locations: Location[]
   selectedLocation?: Location | null
   onShowSunBearing: (show: boolean) => void
   showSunBearing: boolean
@@ -188,6 +189,7 @@ export default function ToolsDrawer({
   onClose,
   sunInfo,
   auroraData,
+  locations,
   selectedLocation,
   onShowSunBearing,
   showSunBearing,
@@ -195,9 +197,27 @@ export default function ToolsDrawer({
 }: ToolsDrawerProps) {
   const [fromMode, setFromMode] = useState<'current' | 'start'>('current')
   const [searchValue, setSearchValue] = useState('')
+  const [navDest, setNavDest] = useState<Location | null>(null)
   const [dlState, setDlState] = useState<'idle' | 'downloading' | 'done'>('idle')
   const [dlProgress, setDlProgress] = useState(0)
   const drawerRef = useRef<HTMLDivElement>(null)
+
+  // Filter locations by search query
+  const searchResults = searchValue.trim().length > 0
+    ? locations.filter(l =>
+        l.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        (l.icelandicName ?? '').toLowerCase().includes(searchValue.toLowerCase()) ||
+        l.type.toLowerCase().includes(searchValue.toLowerCase())
+      ).slice(0, 6)
+    : []
+
+  // Active destination: either searched+selected, or pre-selected spot
+  const destination = navDest ?? selectedLocation ?? null
+
+  // Reset navDest when drawer closes
+  useEffect(() => {
+    if (!isOpen) { setSearchValue(''); setNavDest(null) }
+  }, [isOpen])
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -373,46 +393,112 @@ export default function ToolsDrawer({
             </div>
 
             {/* DESTINATION search */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: '#8a8f9e' }}>
                 Destination
               </span>
+
+              {/* Search input */}
               <div
                 className="flex items-center gap-2 px-2.5 rounded-lg"
                 style={{
                   background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  height: '36px',
+                  border: `1px solid ${navDest ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                  height: '40px',
                 }}
               >
                 <Search size={13} style={{ color: '#8a8f9e', flexShrink: 0 }} />
                 <input
                   type="text"
-                  value={searchValue}
-                  onChange={e => setSearchValue(e.target.value)}
-                  placeholder="Search spots, waterfalls..."
-                  className="flex-1 bg-transparent text-xs outline-none placeholder:text-[#4b5563] text-white"
+                  value={navDest ? navDest.name : searchValue}
+                  onChange={e => { setSearchValue(e.target.value); setNavDest(null) }}
+                  onFocus={() => { if (navDest) { setSearchValue(navDest.name); setNavDest(null) } }}
+                  placeholder="Search waterfalls, glaciers…"
+                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#4b5563] text-white"
                 />
+                {(navDest || searchValue) && (
+                  <button onClick={() => { setSearchValue(''); setNavDest(null) }}
+                    style={{ color: '#8a8f9e', background: 'none', border: 'none', cursor: 'pointer', padding: 2, lineHeight: 1 }}>
+                    ✕
+                  </button>
+                )}
               </div>
+
+              {/* Search results dropdown */}
+              {searchResults.length > 0 && !navDest && (
+                <div style={{
+                  borderRadius: 10,
+                  background: 'rgba(18,20,28,0.98)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  overflow: 'hidden',
+                }}>
+                  {searchResults.map((loc, i) => (
+                    <button
+                      key={loc.id}
+                      onClick={() => { setNavDest(loc); setSearchValue('') }}
+                      style={{
+                        width: '100%', textAlign: 'left', background: 'none', border: 'none',
+                        borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                        padding: '10px 12px', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 10,
+                      }}
+                    >
+                      <span style={{ fontSize: 16, flexShrink: 0 }}>
+                        {{ waterfall:'💧', glacier:'🧊', volcano:'🌋', lake:'🏞️', canyon:'🏜️',
+                           beach:'🏖️', 'hot-spring':'♨️', lava:'🔥', mountain:'⛰️',
+                           ruins:'🏛️', geothermal:'💨', valley:'🌿' }[loc.type] ?? '📍'}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {loc.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#8a8f9e' }}>
+                          {loc.region.replace(/-/g, ' ')} · {loc.distance ? `${loc.distance} km` : loc.type}
+                        </div>
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 14 14" style={{ flexShrink: 0, color: '#8a8f9e' }}>
+                        <path d="M4 7h6M7 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Fallback: pre-selected spot from map */}
+              {!navDest && !searchValue && selectedLocation && (
+                <button
+                  onClick={() => setNavDest(selectedLocation)}
+                  style={{
+                    width: '100%', textAlign: 'left', background: 'rgba(245,166,35,0.06)',
+                    border: '1px solid rgba(245,166,35,0.2)', borderRadius: 10,
+                    padding: '8px 12px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8,
+                  }}
+                >
+                  <MapPin size={13} style={{ color: '#f5a623', flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: '#f5a623', flex: 1 }}>
+                    Use selected: <strong>{selectedLocation.name}</strong>
+                  </span>
+                </button>
+              )}
             </div>
 
-            {/* Navigate to selected location */}
-            {selectedLocation && onNavigate && (
+            {/* START NAVIGATION button */}
+            {destination && onNavigate && (
               <button
                 onClick={() => {
-                  onNavigate(selectedLocation)
+                  onNavigate(destination)
                   onClose()
                 }}
-                className="flex items-center justify-center gap-2 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors"
                 style={{
-                  background: '#f5a623',
-                  color: '#0a0b0e',
-                  border: 'none',
-                  cursor: 'pointer',
+                  width: '100%', height: 48, borderRadius: 12, fontWeight: 700, fontSize: 15,
+                  background: '#f5a623', color: '#0a0b0e', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  boxShadow: '0 4px 20px rgba(245,166,35,0.4)',
                 }}
               >
-                <Navigation size={14} />
-                Navigate to {selectedLocation.name}
+                <Navigation size={16} />
+                Start Navigation to {destination.name}
               </button>
             )}
 
