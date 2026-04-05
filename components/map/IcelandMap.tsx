@@ -25,6 +25,7 @@ interface IcelandMapProps {
   navigationTarget?: Location | null
   routeGeometry?: { type: 'LineString'; coordinates: [number, number][] } | null
   userCoords?: [number, number] | null
+  userBearing?: number   // degrees 0-360, direction of travel
 }
 
 const AURORA_ZONES: [number, number][] = [
@@ -47,6 +48,7 @@ export default function IcelandMap({
   auroraData,
   routeGeometry,
   userCoords,
+  userBearing = 0,
 }: IcelandMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -340,19 +342,29 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
 
     if (!userMarkerRef.current) {
       const el = document.createElement('div')
-      el.style.cssText = `
-        width: 18px; height: 18px; border-radius: 50%;
-        background: #4a9eff;
-        border: 3px solid white;
-        box-shadow: 0 0 0 3px rgba(74,158,255,0.35), 0 2px 8px rgba(0,0,0,0.5);
+      el.style.cssText = 'width:28px;height:28px;position:relative;display:flex;align-items:center;justify-content:center;'
+      el.innerHTML = `
+        <svg width="28" height="28" viewBox="0 0 28 28" style="overflow:visible">
+          <!-- pulsing halo -->
+          <circle cx="14" cy="14" r="12" fill="rgba(74,158,255,0.18)" class="nav-pulse"/>
+          <!-- direction cone -->
+          <polygon points="14,2 18,11 14,9 10,11" fill="#4a9eff" opacity="0.9" class="nav-cone"/>
+          <!-- position dot -->
+          <circle cx="14" cy="14" r="7" fill="#4a9eff"/>
+          <circle cx="14" cy="14" r="5" fill="white"/>
+          <circle cx="14" cy="14" r="3.5" fill="#4a9eff"/>
+        </svg>
       `
+      el.style.transform = `rotate(${userBearing}deg)`
       userMarkerRef.current = new maplibregl.Marker({ element: el, anchor: 'center' })
         .setLngLat(userCoords)
         .addTo(map)
     } else {
       userMarkerRef.current.setLngLat(userCoords)
+      const el = userMarkerRef.current.getElement()
+      el.style.transform = `rotate(${userBearing}deg)`
     }
-  }, [userCoords, mapReady])
+  }, [userCoords, userBearing, mapReady])
 
   if (mapError) {
     return (

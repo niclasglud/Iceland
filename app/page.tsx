@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import dynamic from 'next/dynamic'
-import { ActiveTab, Location, AuroraData, WeatherData, SunInfo, MoonInfo, RouteData, RouteStep } from '@/types'
+import { ActiveTab, Location, AuroraData, WeatherData, SunInfo, MoonInfo, RouteData } from '@/types'
 import { getSunInfo, getMoonInfo, ICELAND_CENTER } from '@/lib/suncalc-utils'
 import { getMockAuroraData } from '@/lib/aurora'
 import { getMockWeatherData } from '@/lib/weather'
@@ -44,6 +44,17 @@ export default function HomePage() {
   const [routeLoading, setRouteLoading] = useState(false)
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null)
   const watchIdRef = useRef<number | null>(null)
+
+  // Bearing from user to next route step (for vehicle marker direction)
+  const userBearing = useMemo(() => {
+    if (!userCoords || !routeData?.steps?.length) return 0
+    const next = routeData.steps.find(s => s.maneuver !== 'depart' && haversineMeters(userCoords, s.location) > 30)
+    if (!next) return 0
+    const [fx, fy] = userCoords, [tx, ty] = next.location
+    const lat1 = fy * Math.PI / 180, lat2 = ty * Math.PI / 180
+    const dLng = (tx - fx) * Math.PI / 180
+    return (Math.atan2(Math.sin(dLng) * Math.cos(lat2), Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng)) * 180 / Math.PI + 360) % 360
+  }, [userCoords, routeData])
 
   const [sunInfo, setSunInfo] = useState<SunInfo>(() =>
     getSunInfo(new Date(), ICELAND_CENTER[0], ICELAND_CENTER[1])
@@ -213,6 +224,7 @@ export default function HomePage() {
               navigationTarget={navigationTarget}
               routeGeometry={routeData?.geometry ?? null}
               userCoords={userCoords}
+              userBearing={userBearing}
             />
 
             {/* Navigation HUD */}
@@ -343,8 +355,7 @@ function fmtDuration(s: number): string {
   return `${m} min`
 }
 
-function ManeuverArrow({ maneuver }: { maneuver: string }) {
-  const size = 32
+function ManeuverArrow({ maneuver, size = 32 }: { maneuver: string; size?: number }) {
   const c = '#f5a623'
   if (maneuver === 'arrive') {
     return (
@@ -424,138 +435,196 @@ function NavigationHUD({
   userCoords: [number, number] | null
   onClose: () => void
 }) {
-  // Find next step based on proximity to user
-  const nextStep: RouteStep | null = (() => {
-    if (!routeData?.steps?.length) return null
-    if (!userCoords) return routeData.steps[0] ?? null
-    // Skip depart step, find nearest upcoming maneuver
-    const steps = routeData.steps.filter((s) => s.maneuver !== 'depart')
-    let closestIdx = 0
-    let minDist = Infinity
-    steps.forEach((step, i) => {
-      const d = haversineMeters(userCoords, step.location)
-      if (d < minDist) { minDist = d; closestIdx = i }
+  const [showAllTurns, setShowAllTurns] = useState(false)
+
+  // Find the current active step index based on user proximity
+  const activeStepIdx = (() => {
+    if (!routeData?.steps?.length || !userCoords) return 0
+    const actionable = routeData.steps.map((s, i) => ({ s, i })).filter(({ s }) => s.maneuver !== 'depart')
+    let best = 0, minDist = Infinity
+    actionable.forEach(({ s, i }) => {
+      const d = haversineMeters(userCoords, s.location)
+      if (d < minDist) { minDist = d; best = i }
     })
-    return steps[closestIdx] ?? null
+    return best
   })()
 
-  const distToNext = nextStep && userCoords
-    ? haversineMeters(userCoords, nextStep.location)
-    : null
+  const steps = routeData?.steps ?? []
+  const nextStep = steps[activeStepIdx] ?? null
+  const upcoming = steps.slice(activeStepIdx + 1, activeStepIdx + 3)  // next 2 after current
 
-  const totalDist = routeData?.distance ?? null
-  const totalDur = routeData?.duration ?? null
+  const distToNext = nextStep && userCoords ? haversineMeters(userCoords, nextStep.location) : null
+  const remainingDist = userCoords ? haversineMeters(userCoords, target.coordinates as [number, number]) : (routeData?.distance ?? null)
+  const remainingDur = routeData?.duration != null && routeData?.distance != null && remainingDist != null
+    ? Math.round(routeData.duration * (remainingDist / routeData.distance))
+    : (routeData?.duration ?? null)
 
-  // Distance remaining (approx: from user to destination)
-  const remainingDist = userCoords && target.coordinates
-    ? haversineMeters(userCoords, target.coordinates as [number, number])
-    : totalDist
+  // ETA = now + remaining duration
+  const eta = remainingDur != null ? (() => {
+    const d = new Date(Date.now() + remainingDur * 1000)
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Atlantic/Reykjavik' })
+  })() : null
+
+  const hudBg = 'rgba(10,11,14,0.97)'
+  const hudBorder = '1px solid rgba(255,255,255,0.1)'
+  const blur = 'blur(16px)'
 
   return (
     <>
-      {/* Top instruction bar */}
-      <div
-        style={{
-          position: 'absolute', top: 8, left: 12, right: 12, zIndex: 30,
-          borderRadius: 16,
-          background: 'rgba(10,11,14,0.97)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          padding: '12px 16px',
-          display: 'flex', alignItems: 'center', gap: 14,
-          boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
-        }}
-      >
-        {loading ? (
-          <div style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #f5a623', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
-        ) : (
-          <ManeuverArrow maneuver={nextStep?.maneuver ?? 'straight'} />
-        )}
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {loading ? (
-            <div style={{ color: '#8a8f9e', fontSize: 13 }}>Calculating route…</div>
-          ) : nextStep ? (
-            <>
-              <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {nextStep.instruction}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                {distToNext != null && (
-                  <span style={{ color: '#f5a623', fontSize: 13, fontWeight: 600 }}>
-                    in {fmtDist(distToNext)}
-                  </span>
-                )}
-                {routeData?.isEstimate && (
-                  <span style={{ color: '#8a8f9e', fontSize: 10, background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 4 }}>
-                    est. route
-                  </span>
-                )}
-              </div>
-            </>
-          ) : (
-            <div style={{ color: '#8a8f9e', fontSize: 13 }}>Calculating…</div>
-          )}
+      {/* ── Top panel: next maneuver + 2 upcoming ── */}
+      <div style={{
+        position: 'absolute', top: 8, left: 12, right: 12, zIndex: 30,
+        borderRadius: 16, background: hudBg, border: hudBorder,
+        backdropFilter: blur, WebkitBackdropFilter: blur,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.5)', overflow: 'hidden',
+      }}>
+        {/* Primary instruction row */}
+        <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          {loading
+            ? <div style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #f5a623', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+            : <ManeuverArrow maneuver={nextStep?.maneuver ?? 'straight'} />
+          }
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {loading ? (
+              <div style={{ color: '#8a8f9e', fontSize: 13 }}>Calculating route…</div>
+            ) : nextStep ? (
+              <>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.25 }}>
+                  {nextStep.instruction}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
+                  {distToNext != null && (
+                    <span style={{ color: '#f5a623', fontSize: 13, fontWeight: 700 }}>
+                      {fmtDist(distToNext)}
+                    </span>
+                  )}
+                  {nextStep.streetName && (
+                    <span style={{ color: '#8a8f9e', fontSize: 12 }}>{nextStep.streetName}</span>
+                  )}
+                  {routeData?.isEstimate && (
+                    <span style={{ color: '#8a8f9e', fontSize: 10, background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 4 }}>
+                      est.
+                    </span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div style={{ color: '#8a8f9e', fontSize: 13 }}>Calculating…</div>
+            )}
+          </div>
         </div>
+
+        {/* Upcoming turns (next 2) */}
+        {upcoming.length > 0 && !loading && (
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+            {upcoming.map((step, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '8px 16px',
+                borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+              }}>
+                <ManeuverArrow maneuver={step.maneuver} size={20} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: '#c8cad4', fontSize: 12, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {step.instruction}
+                  </div>
+                </div>
+                <div style={{ color: '#8a8f9e', fontSize: 11, flexShrink: 0 }}>
+                  {fmtDist(step.distance)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Bottom info bar */}
-      <div
-        style={{
-          position: 'absolute', bottom: 8, left: 12, right: 12, zIndex: 30,
-          borderRadius: 16,
-          background: 'rgba(10,11,14,0.97)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          padding: '12px 16px',
-          display: 'flex', alignItems: 'center', gap: 10,
-          boxShadow: '0 -4px 24px rgba(0,0,0,0.4)',
-        }}
-      >
-        {/* Destination dot */}
+      {/* ── All turns panel (slides up when open) ── */}
+      {showAllTurns && (
+        <div style={{
+          position: 'absolute', top: 8, left: 12, right: 12, bottom: 74, zIndex: 31,
+          borderRadius: 16, background: 'rgba(10,11,14,0.99)', border: hudBorder,
+          backdropFilter: blur, WebkitBackdropFilter: blur,
+          display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          boxShadow: '0 4px 32px rgba(0,0,0,0.7)',
+        }}>
+          <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>All Turns</span>
+            <button onClick={() => setShowAllTurns(false)} style={{ background: 'none', border: 'none', color: '#8a8f9e', cursor: 'pointer', fontSize: 18, padding: 4 }}>✕</button>
+          </div>
+          <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none' }}>
+            {steps.map((step, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
+                borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                background: i === activeStepIdx ? 'rgba(245,166,35,0.08)' : 'transparent',
+              }}>
+                <ManeuverArrow maneuver={step.maneuver} size={22} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: i === activeStepIdx ? '#fff' : '#c8cad4', fontSize: 13, fontWeight: i === activeStepIdx ? 700 : 400 }}>
+                    {step.instruction}
+                  </div>
+                  {step.streetName && (
+                    <div style={{ color: '#8a8f9e', fontSize: 11, marginTop: 1 }}>{step.streetName}</div>
+                  )}
+                </div>
+                {step.distance > 0 && (
+                  <div style={{ color: i === activeStepIdx ? '#f5a623' : '#8a8f9e', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+                    {fmtDist(step.distance)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Bottom bar: destination + ETA ── */}
+      <div style={{
+        position: 'absolute', bottom: 8, left: 12, right: 12, zIndex: 30,
+        borderRadius: 16, background: hudBg, border: hudBorder,
+        backdropFilter: blur, WebkitBackdropFilter: blur,
+        padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
+        boxShadow: '0 -4px 24px rgba(0,0,0,0.4)',
+      }}>
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f5a623', flexShrink: 0 }} />
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: '#fff', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {target.name}
           </div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
-            {remainingDist != null && (
-              <span style={{ color: '#8a8f9e', fontSize: 12 }}>{fmtDist(remainingDist)}</span>
-            )}
-            {totalDur != null && (
-              <span style={{ color: '#8a8f9e', fontSize: 12 }}>~{fmtDuration(totalDur)}</span>
-            )}
+          <div style={{ display: 'flex', gap: 8, marginTop: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            {remainingDist != null && <span style={{ color: '#8a8f9e', fontSize: 12 }}>{fmtDist(remainingDist)}</span>}
+            {remainingDur != null && <span style={{ color: '#8a8f9e', fontSize: 12 }}>·  {fmtDuration(remainingDur)}</span>}
+            {eta && <span style={{ color: '#4a9eff', fontSize: 12, fontWeight: 600 }}>· ETA {eta}</span>}
           </div>
         </div>
 
-        {/* Step count */}
-        {routeData?.steps && (
-          <div style={{ color: '#8a8f9e', fontSize: 11, textAlign: 'center', flexShrink: 0 }}>
-            <div style={{ color: '#fff', fontWeight: 600, fontSize: 13 }}>{routeData.steps.length}</div>
-            <div>steps</div>
-          </div>
-        )}
-
-        {/* Close */}
+        {/* All turns button */}
         <button
-          onClick={onClose}
+          onClick={() => setShowAllTurns(v => !v)}
           style={{
-            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            color: 'white', fontSize: 16, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, height: 32, padding: '0 10px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+            background: showAllTurns ? 'rgba(245,166,35,0.15)' : 'rgba(255,255,255,0.08)',
+            border: showAllTurns ? '1px solid rgba(245,166,35,0.4)' : '1px solid rgba(255,255,255,0.12)',
+            color: showAllTurns ? '#f5a623' : '#8a8f9e', cursor: 'pointer',
           }}
         >
-          ✕
+          Turns {steps.length > 0 ? `(${steps.length})` : ''}
         </button>
+
+        <button onClick={onClose} style={{
+          width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+          color: 'white', fontSize: 15, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>✕</button>
       </div>
 
-      {/* CSS for spinner */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .nav-pulse { animation: navPulse 2s ease-in-out infinite; }
+        @keyframes navPulse { 0%,100% { opacity:0.2; r:12 } 50% { opacity:0.5; r:14 } }
+      `}</style>
     </>
   )
 }
