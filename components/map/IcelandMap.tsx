@@ -190,23 +190,7 @@ export default function IcelandMap({
           },
         })
 
-        // Cloud cover GeoJSON overlay — circles at key Iceland points
-        map.addSource('cloud-cover', {
-          type: 'geojson',
-          data: buildCloudGeoJSON(cloudCover),
-        })
-        map.addLayer({
-          id: 'cloud-cover-layer',
-          type: 'circle',
-          source: 'cloud-cover',
-          paint: {
-            'circle-radius': 80,
-            'circle-color': ['get', 'color'],
-            'circle-opacity': ['get', 'opacity'],
-            'circle-blur': 1,
-          },
-          layout: { visibility: 'none' },
-        })
+        // Cloud cover satellite tiles added dynamically via useEffect (RainViewer)
 
         addMarkers(map, locations, selectedLocation, onLocationSelect)
         setMapReady(true)
@@ -373,17 +357,52 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     })
   }, [showSunBearing, sunriseAzimuth, sunsetAzimuth, mapReady, locations])
 
-  // ── Cloud cover overlay ───────────────────────────────────────────────────
+  // ── Cloud cover satellite tiles (RainViewer infrared) ────────────────────
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
-    if (map.getLayer('cloud-cover-layer')) {
-      map.setLayoutProperty('cloud-cover-layer', 'visibility', showCloudCover ? 'visible' : 'none')
+
+    if (!showCloudCover) {
+      if (map.getLayer('cloud-tile-layer')) {
+        map.setLayoutProperty('cloud-tile-layer', 'visibility', 'none')
+      }
+      return
     }
-    if (showCloudCover && map.getSource('cloud-cover')) {
-      (map.getSource('cloud-cover') as maplibregl.GeoJSONSource).setData(buildCloudGeoJSON(cloudCover))
+
+    const loadCloudTiles = async () => {
+      try {
+        const res = await fetch('https://api.rainviewer.com/public/weather-maps.json')
+        const data = await res.json()
+        const infrared: { path: string; time: number }[] = data.satellite?.infrared ?? []
+        if (!infrared.length) return
+
+        // Latest satellite frame
+        const latest = infrared[infrared.length - 1]
+        const tileUrl = `https://tilecache.rainviewer.com${latest.path}512/{z}/{x}/{y}/0/0_0.png`
+
+        // Remove existing layer/source so we can refresh
+        if (map.getLayer('cloud-tile-layer')) map.removeLayer('cloud-tile-layer')
+        if (map.getSource('cloud-tiles')) map.removeSource('cloud-tiles')
+
+        map.addSource('cloud-tiles', {
+          type: 'raster',
+          tiles: [tileUrl],
+          tileSize: 512,
+          attribution: '© RainViewer',
+        })
+        map.addLayer({
+          id: 'cloud-tile-layer',
+          type: 'raster',
+          source: 'cloud-tiles',
+          paint: { 'raster-opacity': 0.65 },
+        })
+      } catch (err) {
+        console.error('[CloudCover] Failed to load satellite tiles:', err)
+      }
     }
-  }, [showCloudCover, cloudCover, mapReady])
+
+    loadCloudTiles()
+  }, [showCloudCover, mapReady])
 
   // ── F-road filter marker highlight ───────────────────────────────────────
   useEffect(() => {
@@ -540,14 +559,17 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
       {showCloudCover && (
         <div style={{
           position: 'absolute', top: 12, left: activeTab === 'aurora' && auroraData ? 140 : 12, zIndex: 10,
-          display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
+          display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px',
           borderRadius: 10, background: 'rgba(18,20,28,0.95)',
-          border: `1px solid ${cloudCover < 30 ? 'rgba(6,182,212,0.4)' : cloudCover < 70 ? 'rgba(139,151,168,0.4)' : 'rgba(71,85,105,0.5)'}`,
+          border: '1px solid rgba(6,182,212,0.35)',
         }}>
-          <span style={{ fontSize: 13 }}>☁️</span>
-          <span style={{ color: '#8a8f9e', fontSize: 11, fontWeight: 600 }}>Cloud</span>
+          <span style={{ fontSize: 13 }}>🛰️</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <span style={{ color: '#06b6d4', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>Satellite</span>
+            <span style={{ color: '#8a8f9e', fontSize: 9, lineHeight: 1 }}>Cloud cover live</span>
+          </div>
           <span style={{
-            fontWeight: 700, fontSize: 14,
+            fontWeight: 700, fontSize: 13, marginLeft: 4,
             color: cloudCover < 30 ? '#06b6d4' : cloudCover < 70 ? '#94a3b8' : '#64748b',
           }}>
             {Math.round(cloudCover)}%
@@ -636,28 +658,6 @@ function addMarkers(
       .addTo(map)
     markerStore.set(loc.id, marker)
   })
-}
-
-// Iceland coverage points for cloud overlay
-const CLOUD_POINTS: [number, number][] = [
-  [-18.9, 65.0], [-22.5, 64.0], [-14.0, 65.5],
-  [-24.0, 65.5], [-17.0, 66.2], [-20.5, 63.8],
-  [-13.5, 64.5], [-21.0, 65.5],
-]
-
-function buildCloudGeoJSON(cloudCover: number): GeoJSON.FeatureCollection {
-  // Color: clear=teal, partial=yellow, overcast=blue-gray
-  const color = cloudCover < 30 ? '#06b6d4' : cloudCover < 70 ? '#8b97a8' : '#475569'
-  const opacity = 0.08 + (cloudCover / 100) * 0.18
-
-  return {
-    type: 'FeatureCollection',
-    features: CLOUD_POINTS.map(([lng, lat], i) => ({
-      type: 'Feature',
-      properties: { color, opacity, id: i },
-      geometry: { type: 'Point', coordinates: [lng, lat] },
-    })),
-  }
 }
 
 function buildAuroraGeoJSON(kpIndex: number): GeoJSON.FeatureCollection {
