@@ -22,6 +22,7 @@ interface IcelandMapProps {
   isExpanded: boolean
   activeTab: string
   auroraData?: { kpIndex: number }
+  navigationTarget?: Location | null
 }
 
 const AURORA_ZONES: [number, number][] = [
@@ -42,6 +43,7 @@ export default function IcelandMap({
   isExpanded,
   activeTab,
   auroraData,
+  navigationTarget,
 }: IcelandMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -108,6 +110,50 @@ export default function IcelandMap({
           layout: { visibility: activeTab === 'aurora' ? 'visible' : 'none' },
         })
 
+        // Sun rays source/layer
+        map.addSource('sun-rays', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        })
+        map.addLayer({
+          id: 'sun-rays-layer',
+          type: 'line',
+          source: 'sun-rays',
+          paint: {
+            'line-color': '#f5a623',
+            'line-width': 1.5,
+            'line-opacity': 0.5,
+            'line-dasharray': [3, 3],
+          },
+        })
+
+        // Navigation route source/layers
+        map.addSource('nav-route', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        })
+        map.addLayer({
+          id: 'nav-route-glow',
+          type: 'line',
+          source: 'nav-route',
+          paint: {
+            'line-color': '#f5a623',
+            'line-width': 8,
+            'line-opacity': 0.2,
+          },
+        })
+        map.addLayer({
+          id: 'nav-route-line',
+          type: 'line',
+          source: 'nav-route',
+          paint: {
+            'line-color': '#f5a623',
+            'line-width': 3,
+            'line-opacity': 0.85,
+            'line-dasharray': [2, 2],
+          },
+        })
+
         addMarkers(map, locations, selectedLocation, onLocationSelect)
         setMapReady(true)
       })
@@ -150,7 +196,7 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     if (map.getLayer('aurora-fill')) map.setLayoutProperty('aurora-fill', 'visibility', vis)
     if (map.getSource('aurora-zones') && activeTab === 'aurora') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(map.getSource('aurora-zones') as any).setData(buildAuroraGeoJSON(auroraData?.kpIndex ?? 0))
+      (map.getSource('aurora-zones') as maplibregl.GeoJSONSource).setData(buildAuroraGeoJSON(auroraData?.kpIndex ?? 0))
     }
   }, [activeTab, auroraData, mapReady])
 
@@ -176,6 +222,121 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
   useEffect(() => {
     setTimeout(() => mapRef.current?.resize(), 100)
   }, [isExpanded])
+
+  // ── Sun bearing rays ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    const source = map.getSource('sun-rays') as maplibregl.GeoJSONSource | undefined
+    if (!source) return
+
+    if (!showSunBearing) {
+      source.setData({ type: 'FeatureCollection', features: [] })
+      markerStore.forEach((marker, id) => {
+        const loc = locations.find(l => l.id === id)
+        if (loc) {
+          const el = marker.getElement()
+          el.style.opacity = '1'
+          el.style.transform = 'scale(1)'
+          el.style.boxShadow = ''
+        }
+      })
+      return
+    }
+
+    const azRad = (sunAzimuth * Math.PI) / 180
+    const rayLength = 0.12
+    const features: GeoJSON.Feature[] = []
+
+    locations.forEach(loc => {
+      const [lng, lat] = loc.coordinates
+      const dLng = Math.sin(azRad) * rayLength
+      const dLat = Math.cos(azRad) * rayLength
+      features.push({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [lng - dLng * 0.3, lat - dLat * 0.3],
+            [lng + dLng, lat + dLat],
+          ],
+        },
+      })
+
+      const marker = markerStore.get(loc.id)
+      if (marker) {
+        const el = marker.getElement()
+        const sunIsRising = sunAzimuth > 30 && sunAzimuth < 150
+        const sunIsSetting = sunAzimuth > 210 && sunAzimuth < 330
+        const sunIsUp = sunAltitude > 0
+        const sunIsLow = sunAltitude > -6 && sunAltitude < 15
+        const isNight = sunAltitude < -6
+
+        let isHighlighted = false
+        if (sunIsUp && sunIsLow && sunIsRising && (loc.bestLight.includes('sunrise') || loc.bestLight.includes('golden-hour'))) {
+          isHighlighted = true
+        } else if (sunIsUp && sunIsLow && sunIsSetting && (loc.bestLight.includes('sunset') || loc.bestLight.includes('golden-hour'))) {
+          isHighlighted = true
+        } else if (isNight && loc.bestLight.includes('northern-lights')) {
+          isHighlighted = true
+        } else if (sunIsUp && !sunIsLow && loc.bestLight.includes('overcast')) {
+          isHighlighted = true
+        }
+
+        el.style.opacity = isHighlighted ? '1' : '0.35'
+        el.style.boxShadow = isHighlighted ? '0 0 12px 4px rgba(245,166,35,0.8)' : ''
+        el.style.transform = isHighlighted ? 'scale(1.4)' : 'scale(0.85)'
+      }
+    })
+
+    source.setData({ type: 'FeatureCollection', features })
+  }, [showSunBearing, sunAzimuth, sunAltitude, mapReady, locations])
+
+  // ── Navigation route ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    const source = map.getSource('nav-route') as maplibregl.GeoJSONSource | undefined
+    if (!source) return
+
+    if (!navigationTarget) {
+      source.setData({ type: 'FeatureCollection', features: [] })
+      return
+    }
+
+    const startCoord: [number, number] = [-21.9426, 64.1355]
+    const endCoord = navigationTarget.coordinates as [number, number]
+
+    const drawRoute = (fromCoord: [number, number]) => {
+      source!.setData({
+        type: 'FeatureCollection',
+        features: [{
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'LineString', coordinates: [fromCoord, endCoord] },
+        }],
+      })
+      map.fitBounds(
+        [[Math.min(fromCoord[0], endCoord[0]) - 0.5, Math.min(fromCoord[1], endCoord[1]) - 0.3],
+         [Math.max(fromCoord[0], endCoord[0]) + 0.5, Math.max(fromCoord[1], endCoord[1]) + 0.3]],
+        { padding: 80, pitch: 45 }
+      )
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          drawRoute([pos.coords.longitude, pos.coords.latitude])
+        },
+        () => {
+          drawRoute(startCoord)
+        }
+      )
+    } else {
+      drawRoute(startCoord)
+    }
+  }, [navigationTarget, mapReady])
 
   if (mapError) {
     return (

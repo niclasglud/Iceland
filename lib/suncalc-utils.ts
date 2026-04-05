@@ -67,17 +67,24 @@ export function getMoonInfo(date: Date, lng: number, lat: number): MoonInfo {
 
 export function formatTime(date: Date | undefined): string {
   if (!date || isNaN(date.getTime())) return '--:--'
-  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+  return date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Atlantic/Reykjavik',
+  })
 }
 
 export function getCountdown(target: Date): string {
+  if (!target || isNaN(target.getTime())) return '--'
   const now = new Date()
   const diffMs = target.getTime() - now.getTime()
-  if (diffMs <= 0) return 'now'
+  if (diffMs < 0) return 'passed'
+  if (diffMs < 60000) return 'now'
   const h = Math.floor(diffMs / 3600000)
   const m = Math.floor((diffMs % 3600000) / 60000)
-  if (h > 0) return `${h}h ${m}m`
-  return `${m}m`
+  if (h > 0) return `in ${h}h ${m}m`
+  return `in ${m}m`
 }
 
 export function getCurrentLightPhase(sunInfo: SunInfo): {

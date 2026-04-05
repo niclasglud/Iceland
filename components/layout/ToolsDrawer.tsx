@@ -25,6 +25,7 @@ interface ToolsDrawerProps {
   selectedLocation?: Location | null
   onShowSunBearing: (show: boolean) => void
   showSunBearing: boolean
+  onNavigate?: (loc: Location | null) => void
 }
 
 // ── Internal sub-components ─────────────────────────────────────────────────
@@ -190,6 +191,7 @@ export default function ToolsDrawer({
   selectedLocation,
   onShowSunBearing,
   showSunBearing,
+  onNavigate,
 }: ToolsDrawerProps) {
   const [fromMode, setFromMode] = useState<'current' | 'start'>('current')
   const [searchValue, setSearchValue] = useState('')
@@ -391,6 +393,26 @@ export default function ToolsDrawer({
                 />
               </div>
             </div>
+
+            {/* Navigate to selected location */}
+            {selectedLocation && onNavigate && (
+              <button
+                onClick={() => {
+                  onNavigate(selectedLocation)
+                  onClose()
+                }}
+                className="flex items-center justify-center gap-2 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors"
+                style={{
+                  background: '#f5a623',
+                  color: '#0a0b0e',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <Navigation size={14} />
+                Navigate to {selectedLocation.name}
+              </button>
+            )}
 
             {/* Offline tiles */}
             <div className="flex items-center justify-between">

@@ -37,6 +37,8 @@ export default function HomePage() {
   const [showSunBearing, setShowSunBearing] = useState(false)
   const [isNightMode, setIsNightMode] = useState(false)
   const [detailLocation, setDetailLocation] = useState<Location | null>(null)
+  const [selectedWeatherDay, setSelectedWeatherDay] = useState<number | null>(null)
+  const [navigationTarget, setNavigationTarget] = useState<Location | null>(null)
 
   const [sunInfo, setSunInfo] = useState<SunInfo>(() =>
     getSunInfo(new Date(), ICELAND_CENTER[0], ICELAND_CENTER[1])
@@ -92,7 +94,7 @@ export default function HomePage() {
     setActiveTab('map')
   }, [])
 
-  const showMap = ['map', 'route', 'compass'].includes(activeTab)
+  const showMap = ['map', 'compass'].includes(activeTab)
   const showSpots = activeTab === 'spots'
   const elevationBadge = selectedLocation?.elevation
     ? `▲ ${selectedLocation.elevation.toLocaleString()}m est.`
@@ -141,6 +143,7 @@ export default function HomePage() {
               isExpanded={true}
               activeTab={activeTab}
               auroraData={auroraData}
+              navigationTarget={navigationTarget}
             />
 
             {/* Elevation badge */}
@@ -154,7 +157,7 @@ export default function HomePage() {
 
         {/* Aurora Panel */}
         {activeTab === 'aurora' && (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
             <AuroraBar
               kpIndex={auroraData.kpIndex}
               probability={auroraData.probability}
@@ -175,8 +178,8 @@ export default function HomePage() {
 
         {/* Compass overlay */}
         {activeTab === 'compass' && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-            <CompassDisplay azimuth={sunInfo.azimuth} />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-auto z-20">
+            <CompassDisplay sunAzimuth={sunInfo.azimuth} />
           </div>
         )}
       </div>
@@ -189,6 +192,8 @@ export default function HomePage() {
         onScrub={(d) => setScrubTime(d)}
         isNightMode={isNightMode}
         onNightModeToggle={() => setIsNightMode((v) => !v)}
+        onDaySelect={(idx) => setSelectedWeatherDay(idx < 0 ? null : idx)}
+        selectedDayIndex={selectedWeatherDay}
       />
 
       {/* Full-screen spot detail overlay */}
@@ -214,6 +219,13 @@ export default function HomePage() {
           }
         }}
         showSunBearing={showSunBearing}
+        onNavigate={(loc) => {
+          setNavigationTarget(loc)
+          if (loc) {
+            setActiveTab('map')
+            setIsToolsOpen(false)
+          }
+        }}
       />
     </div>
   )
@@ -291,46 +303,181 @@ function WeatherPanel({ weather, sunInfo }: { weather: WeatherData; sunInfo: Sun
   )
 }
 
-function CompassDisplay({ azimuth }: { azimuth: number }) {
+function CompassDisplay({ sunAzimuth }: { sunAzimuth: number }) {
+  const [heading, setHeading] = useState<number | null>(null)
+  const [permissionNeeded, setPermissionNeeded] = useState(false)
+
+  useEffect(() => {
+    // Check if iOS permission needed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      setPermissionNeeded(true)
+      return
+    }
+    const handler = (e: DeviceOrientationEvent) => {
+      // webkitCompassHeading is iOS, alpha is Android (needs conversion)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const compassHeading = (e as any).webkitCompassHeading ??
+        (e.alpha != null ? (360 - e.alpha) % 360 : null)
+      if (compassHeading != null) setHeading(Math.round(compassHeading))
+    }
+    window.addEventListener('deviceorientation', handler, true)
+    return () => window.removeEventListener('deviceorientation', handler, true)
+  }, [])
+
+  const requestPermission = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (DeviceOrientationEvent as any).requestPermission()
+      if (result === 'granted') {
+        setPermissionNeeded(false)
+        const handler = (e: DeviceOrientationEvent) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const compassHeading = (e as any).webkitCompassHeading ??
+            (e.alpha != null ? (360 - e.alpha) % 360 : null)
+          if (compassHeading != null) setHeading(Math.round(compassHeading))
+        }
+        window.addEventListener('deviceorientation', handler, true)
+      }
+    } catch {}
+  }
+
+  const cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+  const deviceBearing = heading ?? 0
+
+  // Direction label from heading
+  const idx = Math.round(deviceBearing / 45) % 8
+  const dirLabel = cardinals[idx]
+
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-4 p-4">
+      {/* Compass rose */}
       <div
-        className="w-56 h-56 rounded-full border border-white/20 flex items-center justify-center relative"
-        style={{ background: 'rgba(10,11,14,0.85)' }}
+        style={{
+          width: 220, height: 220, borderRadius: '50%',
+          background: 'rgba(18,20,28,0.95)',
+          border: '2px solid rgba(255,255,255,0.12)',
+          position: 'relative',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
       >
-        {(['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'] as const).map((dir, i) => {
-          const angle = i * 45
-          const r = 90
-          const x = Math.sin((angle * Math.PI) / 180) * r
-          const y = -Math.cos((angle * Math.PI) / 180) * r
-          return (
-            <span
-              key={dir}
-              className="absolute text-[10px] font-bold"
-              style={{
-                transform: `translate(${x}px, ${y}px) translate(-50%, -50%)`,
-                color: dir === 'N' ? '#ef4444' : '#6b7280',
-              }}
-            >
-              {dir}
-            </span>
-          )
-        })}
+        {/* Cardinal labels — rotate opposite to heading so N always faces up on screen */}
         <div
-          className="absolute w-0.5 bg-gradient-to-t from-transparent to-[#f5a623] origin-bottom rounded-full"
           style={{
-            height: '80px',
-            transform: `rotate(${azimuth}deg)`,
-            bottom: '50%',
-            left: 'calc(50% - 1px)',
-            boxShadow: '0 0 8px rgba(245,166,35,0.6)',
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            transform: `rotate(${-deviceBearing}deg)`,
+            transition: 'transform 0.15s ease-out',
           }}
-        />
-        <div className="w-4 h-4 rounded-full bg-[#f5a623] shadow-[0_0_16px_rgba(245,166,35,0.8)] z-10" />
+        >
+          {cardinals.map((dir, i) => {
+            const angle = i * 45
+            const r = 88
+            const x = Math.sin((angle * Math.PI) / 180) * r
+            const y = -Math.cos((angle * Math.PI) / 180) * r
+            return (
+              <span
+                key={dir}
+                style={{
+                  position: 'absolute',
+                  left: '50%', top: '50%',
+                  transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                  fontSize: dir === 'N' ? 14 : 11,
+                  fontWeight: 700,
+                  color: dir === 'N' ? '#ef4444' : '#6b7280',
+                }}
+              >
+                {dir}
+              </span>
+            )
+          })}
+          {/* Tick marks */}
+          {Array.from({ length: 36 }).map((_, i) => {
+            const angle = i * 10
+            const isMajor = angle % 90 === 0
+            const x1 = Math.sin((angle * Math.PI) / 180) * 100
+            const y1 = -Math.cos((angle * Math.PI) / 180) * 100
+            const x2 = Math.sin((angle * Math.PI) / 180) * (isMajor ? 92 : 96)
+            const y2 = -Math.cos((angle * Math.PI) / 180) * (isMajor ? 92 : 96)
+            return (
+              <svg key={i} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
+                <line
+                  x1={`calc(50% + ${x1}px)`} y1={`calc(50% + ${y1}px)`}
+                  x2={`calc(50% + ${x2}px)`} y2={`calc(50% + ${y2}px)`}
+                  stroke={isMajor ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}
+                  strokeWidth={isMajor ? 2 : 1}
+                />
+              </svg>
+            )
+          })}
+        </div>
+
+        {/* Fixed north needle */}
+        <svg width="220" height="220" style={{ position: 'absolute', inset: 0 }}>
+          {/* North needle (red) */}
+          <polygon
+            points="110,28 105,110 110,95 115,110"
+            fill="#ef4444"
+            opacity={0.9}
+          />
+          {/* South needle (white) */}
+          <polygon
+            points="110,192 105,110 110,125 115,110"
+            fill="rgba(255,255,255,0.3)"
+          />
+        </svg>
+
+        {/* Sun direction indicator */}
+        <div
+          style={{
+            position: 'absolute', inset: 0,
+            transform: `rotate(${sunAzimuth - deviceBearing}deg)`,
+            transition: 'transform 0.3s ease-out',
+          }}
+        >
+          <svg width="220" height="220" style={{ position: 'absolute', inset: 0 }}>
+            <line
+              x1="110" y1="110" x2="110" y2="35"
+              stroke="#f5a623" strokeWidth="2" strokeDasharray="4,3"
+              strokeLinecap="round" opacity={0.8}
+            />
+            <circle cx="110" cy="35" r="6" fill="#f5a623" opacity={0.9} />
+          </svg>
+        </div>
+
+        {/* Center dot */}
+        <div style={{
+          width: 12, height: 12, borderRadius: '50%',
+          background: '#fff', zIndex: 10,
+          boxShadow: '0 0 8px rgba(255,255,255,0.5)',
+        }} />
       </div>
+
+      {/* Heading readout */}
       <div className="text-center">
-        <div className="text-[#f5a623] text-2xl font-light">{Math.round(azimuth)}°</div>
-        <div className="text-[#8a8f9e] text-xs">Sun Azimuth</div>
+        {permissionNeeded ? (
+          <button
+            onClick={requestPermission}
+            style={{
+              padding: '10px 24px', borderRadius: 999,
+              background: '#f5a623', color: '#0a0b0e',
+              fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer',
+            }}
+          >
+            Enable Compass
+          </button>
+        ) : (
+          <>
+            <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+              {heading != null ? `${heading}°` : '--°'}
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#8a8f9e', marginTop: 4 }}>
+              {heading != null ? dirLabel : 'Waiting…'}
+            </div>
+            <div style={{ fontSize: 12, color: '#5a5f6e', marginTop: 8 }}>
+              ☀ Sun at {Math.round(sunAzimuth)}° Az
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

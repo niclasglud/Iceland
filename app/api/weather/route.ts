@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { WeatherData, DayForecast } from '@/types'
+import { WeatherData, DayForecast, HourlyPoint } from '@/types'
 
 // Open-Meteo free API — no key required
 function buildOpenMeteoUrl(lat: number, lng: number): string {
@@ -7,8 +7,8 @@ function buildOpenMeteoUrl(lat: number, lng: number): string {
     latitude: lat.toString(),
     longitude: lng.toString(),
     current: 'temperature_2m,wind_speed_10m,cloud_cover,precipitation',
-    daily:
-      'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,cloud_cover_mean',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,cloud_cover_mean',
+    hourly: 'temperature_2m,cloud_cover,wind_speed_10m,precipitation',
     timezone: 'Atlantic/Reykjavik',
     forecast_days: '7',
   })
@@ -107,9 +107,18 @@ interface OpenMeteoDaily {
   cloud_cover_mean: number[]
 }
 
+interface OpenMeteoHourly {
+  time: string[]
+  temperature_2m: number[]
+  cloud_cover: number[]
+  wind_speed_10m: number[]
+  precipitation: number[]
+}
+
 interface OpenMeteoResponse {
   current: OpenMeteoCurrent
   daily: OpenMeteoDaily
+  hourly: OpenMeteoHourly
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────
@@ -165,6 +174,29 @@ export async function GET(req: NextRequest) {
     const cloudCover = Math.round(current.cloud_cover)
     const precipitation = current.precipitation ?? 0
 
+    const hourlyByDay: HourlyPoint[][] = []
+    if (data.hourly) {
+      const h = data.hourly
+      for (let day = 0; day < 7; day++) {
+        const dayHours: HourlyPoint[] = []
+        for (let hr = 0; hr < 24; hr++) {
+          const idx = day * 24 + hr
+          if (idx < h.time.length) {
+            const dc = Math.round(h.cloud_cover[idx] ?? 50)
+            const dw = Math.round(h.wind_speed_10m[idx] ?? 10)
+            const dp = h.precipitation[idx] ?? 0
+            dayHours.push({
+              hour: hr,
+              temperature: Math.round(h.temperature_2m[idx] ?? 0),
+              icon: getWeatherIcon(dc, dp),
+              windSpeed: dw,
+            })
+          }
+        }
+        hourlyByDay.push(dayHours)
+      }
+    }
+
     const weatherData: WeatherData = {
       temperature: Math.round(current.temperature_2m),
       condition: getWeatherCondition(cloudCover, precipitation),
@@ -172,6 +204,7 @@ export async function GET(req: NextRequest) {
       cloudCover,
       forecast,
       location: `${safeLat.toFixed(1)}°N, ${Math.abs(safeLng).toFixed(1)}°W`,
+      hourlyByDay: hourlyByDay.length ? hourlyByDay : undefined,
     }
 
     return NextResponse.json(weatherData)

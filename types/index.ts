@@ -62,6 +62,13 @@ export interface AuroraData {
   cloudCover?: number // 0–100%
 }
 
+export interface HourlyPoint {
+  hour: number   // 0-23
+  temperature: number
+  icon: string
+  windSpeed: number
+}
+
 export interface WeatherData {
   temperature: number // Celsius
   condition: string
@@ -71,6 +78,7 @@ export interface WeatherData {
   forecast: DayForecast[]
   location?: string
   elevation?: number
+  hourlyByDay?: HourlyPoint[][]  // 7 days × 24 hours
 }
 
 export interface DayForecast {
@@ -108,7 +116,7 @@ export interface MoonInfo {
   set?: Date
 }
 
-export type ActiveTab = 'map' | 'spots' | 'route' | 'compass' | 'aurora' | 'weather'
+export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather'
 
 export interface AppState {
   activeTab: ActiveTab

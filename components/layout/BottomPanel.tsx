@@ -1,6 +1,6 @@
 'use client'
 
-import { SunInfo, MoonInfo, WeatherData } from '@/types'
+import { SunInfo, MoonInfo, WeatherData, HourlyPoint } from '@/types'
 import {
   getSunSliderPercent,
   sliderPercentToDate,
@@ -17,6 +17,8 @@ interface BottomPanelProps {
   onScrub: (date: Date) => void
   isNightMode: boolean
   onNightModeToggle: () => void
+  onDaySelect: (dayIndex: number) => void
+  selectedDayIndex?: number | null
 }
 
 interface SliderLabel {
@@ -48,6 +50,8 @@ export default function BottomPanel({
   onScrub,
   isNightMode,
   onNightModeToggle,
+  onDaySelect,
+  selectedDayIndex,
 }: BottomPanelProps) {
   // Slider 0–100 value
   const sliderValue = getSunSliderPercent(scrubTime, sunInfo)
@@ -89,15 +93,43 @@ export default function BottomPanel({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 flex flex-col"
+      className="w-full z-40 flex flex-col shrink-0"
       style={{
         background: 'rgba(10,11,14,0.95)',
         borderTop: '1px solid rgba(255,255,255,0.08)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+        position: 'relative',
       }}
     >
+      {/* ── Hourly Modal (slides up above panel) ── */}
+      {selectedDayIndex != null && selectedDayIndex >= 0 && weather.hourlyByDay?.[selectedDayIndex] && (
+        <div style={{
+          position: 'absolute', bottom: '100%', left: 0, right: 0,
+          background: 'rgba(10,11,14,0.98)',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          padding: '12px 12px 16px',
+          zIndex: 50,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
+              {weather.forecast[selectedDayIndex]?.day} — Hourly
+            </span>
+            <button onClick={() => onDaySelect(-1)} style={{ color: '#8a8f9e', background: 'none', border: 'none', fontSize: 16, cursor: 'pointer' }}>✕</button>
+          </div>
+          <div style={{ display: 'flex', overflowX: 'auto', gap: 8, scrollbarWidth: 'none' }}>
+            {(weather.hourlyByDay[selectedDayIndex] as HourlyPoint[]).map((h: HourlyPoint) => (
+              <div key={h.hour} style={{ flexShrink: 0, textAlign: 'center', minWidth: 44 }}>
+                <div style={{ fontSize: 10, color: '#8a8f9e' }}>{h.hour.toString().padStart(2,'0')}:00</div>
+                <div style={{ fontSize: 18 }}>{h.icon}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>{h.temperature > 0 ? '+' : ''}{h.temperature}°</div>
+                <div style={{ fontSize: 9, color: '#8a8f9e' }}>{h.windSpeed}km</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-2 px-3 pt-2.5 pb-1">
 
         {/* ── Row 1: Day/Night toggle  +  Sun position ── */}
@@ -242,18 +274,23 @@ export default function BottomPanel({
           <div className="flex gap-2" style={{ width: 'max-content' }}>
             {weather.forecast.map((day, idx) => {
               const isToday     = idx === 0
+              const isSelected  = selectedDayIndex === idx
               const qColor      = getQualityColor(day.quality)
               const qBg         = qualityBgColor(day.quality)
               return (
                 <div
                   key={`${day.day}-${idx}`}
                   className="flex flex-col items-center gap-0.5 px-2 pt-1.5 pb-1.5 rounded-xl shrink-0"
+                  onClick={() => onDaySelect(isSelected ? -1 : idx)}
                   style={{
-                    background: 'rgba(18,20,28,0.95)',
-                    border: isToday
+                    background: isSelected ? 'rgba(245,166,35,0.12)' : 'rgba(18,20,28,0.95)',
+                    border: isSelected
+                      ? '1px solid #f5a623'
+                      : isToday
                       ? '1px solid #f5a623'
                       : '1px solid rgba(255,255,255,0.08)',
                     minWidth: '58px',
+                    cursor: 'pointer',
                   }}
                 >
                   {/* Day name */}

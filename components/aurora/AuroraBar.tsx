@@ -106,9 +106,7 @@ export default function AuroraBar({
     <div
       style={{
         backgroundColor: '#0a0b0e',
-        minHeight: '100%',
         padding: '20px 16px 32px',
-        overflowY: 'auto',
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}
     >

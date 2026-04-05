@@ -1,6 +1,6 @@
 'use client'
 
-import { MapPin, AlignJustify, Sun, Camera, Route, Compass, Sparkles, Cloud, Map, type LucideIcon } from 'lucide-react'
+import { MapPin, AlignJustify, Sun, Camera, Compass, Sparkles, Cloud, Map, type LucideIcon } from 'lucide-react'
 import { ActiveTab, Location } from '@/types'
 
 interface TopNavProps {
@@ -20,7 +20,6 @@ interface TabConfig {
 const TABS: TabConfig[] = [
   { id: 'map',     label: 'Map',     icon: Map      },
   { id: 'spots',   label: 'Spots',   icon: Camera   },
-  { id: 'route',   label: 'Route',   icon: Route    },
   { id: 'compass', label: 'Compass', icon: Compass  },
   { id: 'aurora',  label: 'Aurora',  icon: Sparkles },
   { id: 'weather', label: 'Weather', icon: Cloud    },
@@ -37,7 +36,7 @@ export default function TopNav({
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center gap-2 px-3"
+      className="w-full z-50 shrink-0 flex items-center gap-2 px-3"
       style={{
         height: '56px',
         background: 'rgba(10,11,14,0.98)',
