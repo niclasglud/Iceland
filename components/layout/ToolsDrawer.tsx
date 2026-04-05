@@ -13,7 +13,7 @@ import {
   MapPin,
   LocateFixed,
 } from 'lucide-react'
-import { SunInfo, AuroraData, Location } from '@/types'
+import { SunInfo, AuroraData, Location, WeatherData } from '@/types'
 import { formatTime, getCountdown, getCurrentLightPhase } from '@/lib/suncalc-utils'
 import { getKpColor, getKpLabel, getAuroraDescription } from '@/lib/aurora'
 
@@ -22,10 +22,13 @@ interface ToolsDrawerProps {
   onClose: () => void
   sunInfo: SunInfo
   auroraData: AuroraData
+  weather: WeatherData
   locations: Location[]
   selectedLocation?: Location | null
   onShowSunBearing: (show: boolean) => void
   showSunBearing: boolean
+  onShowCloudCover: (show: boolean) => void
+  showCloudCover: boolean
   onNavigate?: (dest: Location, fromLocation?: Location | null) => void
 }
 
@@ -222,10 +225,13 @@ export default function ToolsDrawer({
   onClose,
   sunInfo,
   auroraData,
+  weather,
   locations,
   selectedLocation,
   onShowSunBearing,
   showSunBearing,
+  onShowCloudCover,
+  showCloudCover,
   onNavigate,
 }: ToolsDrawerProps) {
   const [fromMode, setFromMode] = useState<'current' | 'search'>('current')
@@ -813,7 +819,65 @@ export default function ToolsDrawer({
           </Section>
 
           {/* ────────────────────────────────────────────
-              SECTION 5: App Settings
+              SECTION 5: Cloud Cover Map
+          ──────────────────────────────────────────── */}
+          <Section icon={<span style={{ fontSize: 15 }}>☁️</span>} title="Cloud Cover Map">
+            <ToggleSwitch
+              checked={showCloudCover}
+              onChange={onShowCloudCover}
+              label="Show cloud cover on map"
+              description="Overlay cloud density over Iceland for aurora planning"
+            />
+
+            {/* Cloud cover meter */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs" style={{ color: '#8a8f9e' }}>Current cloud cover</span>
+                <span
+                  className="text-sm font-bold tabular-nums"
+                  style={{
+                    color: weather.cloudCover < 30
+                      ? '#06b6d4'
+                      : weather.cloudCover < 70
+                      ? '#94a3b8'
+                      : '#64748b',
+                  }}
+                >
+                  {Math.round(weather.cloudCover)}%
+                </span>
+              </div>
+
+              {/* Visual bar */}
+              <div
+                className="relative w-full rounded-full overflow-hidden"
+                style={{ height: 8, background: 'rgba(255,255,255,0.08)' }}
+              >
+                <div
+                  className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${weather.cloudCover}%`,
+                    background: weather.cloudCover < 30
+                      ? 'linear-gradient(to right,#06b6d4,#22d3ee)'
+                      : weather.cloudCover < 70
+                      ? 'linear-gradient(to right,#64748b,#94a3b8)'
+                      : 'linear-gradient(to right,#475569,#64748b)',
+                  }}
+                />
+              </div>
+
+              {/* Label */}
+              <span className="text-[11px]" style={{ color: '#8a8f9e' }}>
+                {weather.cloudCover < 30
+                  ? '✓ Clear skies — ideal for aurora viewing'
+                  : weather.cloudCover < 70
+                  ? '⚠ Partial clouds — aurora may be visible'
+                  : '✗ Heavy cloud cover — aurora viewing poor'}
+              </span>
+            </div>
+          </Section>
+
+          {/* ────────────────────────────────────────────
+              SECTION 6: App Settings
           ──────────────────────────────────────────── */}
           <Section icon={<Settings size={15} />} title="App Settings">
             <button

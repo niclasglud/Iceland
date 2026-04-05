@@ -6,6 +6,7 @@ import { ActiveTab, Location, AuroraData, WeatherData, SunInfo, MoonInfo, RouteD
 import { getSunInfo, getMoonInfo, ICELAND_CENTER } from '@/lib/suncalc-utils'
 import { getMockAuroraData } from '@/lib/aurora'
 import { getMockWeatherData } from '@/lib/weather'
+import { getBestSpotsToday } from '@/lib/spot-scoring'
 import { locations } from '@/data/locations'
 import TopNav from '@/components/layout/TopNav'
 import BottomPanel from '@/components/layout/BottomPanel'
@@ -35,6 +36,8 @@ export default function HomePage() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [lightFilter, setLightFilter] = useState('all')
   const [showSunBearing, setShowSunBearing] = useState(false)
+  const [showCloudCover, setShowCloudCover] = useState(false)
+  const [fRoadFilter, setFRoadFilter] = useState(false)
   const [isNightMode, setIsNightMode] = useState(false)
   const [detailLocation, setDetailLocation] = useState<Location | null>(null)
   const [selectedWeatherDay, setSelectedWeatherDay] = useState<number | null>(null)
@@ -64,6 +67,11 @@ export default function HomePage() {
   )
   const [auroraData, setAuroraData] = useState<AuroraData>(getMockAuroraData())
   const [weather, setWeather] = useState<WeatherData>(getMockWeatherData())
+
+  const bestSpotsToday = useMemo(
+    () => getBestSpotsToday(locations, weather, sunInfo, auroraData, 5),
+    [weather, sunInfo, auroraData]
+  )
 
   // Update sun/moon info when scrub time or selected location changes
   useEffect(() => {
@@ -206,6 +214,9 @@ export default function HomePage() {
               lightFilter={lightFilter}
               onTypeFilterChange={setTypeFilter}
               onLightFilterChange={setLightFilter}
+              fRoadFilter={fRoadFilter}
+              onFRoadFilterChange={setFRoadFilter}
+              featuredSpots={bestSpotsToday}
             />
           </div>
         )}
@@ -231,6 +242,9 @@ export default function HomePage() {
               userCoords={userCoords}
               userBearing={userBearing}
               followUser={!!navigationTarget}
+              showCloudCover={showCloudCover}
+              cloudCover={weather.cloudCover}
+              fRoadFilter={fRoadFilter}
             />
 
             {/* Navigation HUD */}
@@ -320,6 +334,7 @@ export default function HomePage() {
         onClose={() => setIsToolsOpen(false)}
         sunInfo={sunInfo}
         auroraData={auroraData}
+        weather={weather}
         locations={locations}
         selectedLocation={selectedLocation}
         onShowSunBearing={(v: boolean) => {
@@ -330,6 +345,14 @@ export default function HomePage() {
           }
         }}
         showSunBearing={showSunBearing}
+        onShowCloudCover={(v: boolean) => {
+          setShowCloudCover(v)
+          if (v) {
+            setActiveTab('map')
+            setIsToolsOpen(false)
+          }
+        }}
+        showCloudCover={showCloudCover}
         onNavigate={(dest, fromLoc) => {
           setNavigationTarget(dest)
           setNavigationFrom(fromLoc ?? null)

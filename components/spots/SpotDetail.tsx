@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Image from 'next/image'
 import { Location } from '@/types'
+import { getFRoadStatus } from '@/lib/spot-scoring'
 
 interface SpotDetailProps {
   location: Location
@@ -70,6 +71,7 @@ export default function SpotDetail({ location, onClose, onViewOnMap, onNavigate 
   const region = REGION_INFO[location.region] ?? { label: location.region, color: '#8a8f9e', bg: 'rgba(138,143,158,0.15)' }
   const fallback = THUMB_FALLBACK[location.type] ?? 'linear-gradient(160deg,#111,#333)'
   const typeIcon = TYPE_ICONS[location.type] ?? '📍'
+  const fRoadStatus = location.fRoad ? getFRoadStatus(new Date().getMonth()) : null
 
   // Close on back gesture / escape key
   useEffect(() => {
@@ -167,7 +169,11 @@ export default function SpotDetail({ location, onClose, onViewOnMap, onNavigate 
           {location.category === 'hidden-gem' && <Badge color="#a78bfa" bg="rgba(167,139,250,0.15)">💎 Hidden Gem</Badge>}
           {location.category === 'highland'   && <Badge color="#f5a623" bg="rgba(245,166,35,0.15)">🏔️ Highland</Badge>}
           {location.category === 'popular'    && <Badge color="#4a9eff" bg="rgba(74,158,255,0.15)">⭐ Popular</Badge>}
-          {location.fRoad && <Badge color="#ef4444" bg="rgba(239,68,68,0.15)">🚙 {location.fRoad} required</Badge>}
+          {location.fRoad && fRoadStatus && (
+            <Badge color={fRoadStatus.color} bg={`${fRoadStatus.color}18`}>
+              🚙 {location.fRoad} · {fRoadStatus.open ? 'Open' : 'Closed'}
+            </Badge>
+          )}
         </div>
 
         {/* Stats row */}

@@ -29,6 +29,9 @@ interface IcelandMapProps {
   userCoords?: [number, number] | null
   userBearing?: number   // degrees 0-360, direction of travel
   followUser?: boolean   // camera tracks user position in nav mode
+  showCloudCover?: boolean
+  cloudCover?: number    // 0–100% from weather data
+  fRoadFilter?: boolean  // highlight F-road locations
 }
 
 const AURORA_ZONES: [number, number][] = [
@@ -55,6 +58,9 @@ export default function IcelandMap({
   userCoords,
   userBearing = 0,
   followUser = false,
+  showCloudCover = false,
+  cloudCover = 0,
+  fRoadFilter = false,
 }: IcelandMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -182,6 +188,24 @@ export default function IcelandMap({
             'line-opacity': 0.85,
             'line-dasharray': [2, 2],
           },
+        })
+
+        // Cloud cover GeoJSON overlay — circles at key Iceland points
+        map.addSource('cloud-cover', {
+          type: 'geojson',
+          data: buildCloudGeoJSON(cloudCover),
+        })
+        map.addLayer({
+          id: 'cloud-cover-layer',
+          type: 'circle',
+          source: 'cloud-cover',
+          paint: {
+            'circle-radius': 80,
+            'circle-color': ['get', 'color'],
+            'circle-opacity': ['get', 'opacity'],
+            'circle-blur': 1,
+          },
+          layout: { visibility: 'none' },
         })
 
         addMarkers(map, locations, selectedLocation, onLocationSelect)
@@ -349,6 +373,42 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     })
   }, [showSunBearing, sunriseAzimuth, sunsetAzimuth, mapReady, locations])
 
+  // ── Cloud cover overlay ───────────────────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    if (map.getLayer('cloud-cover-layer')) {
+      map.setLayoutProperty('cloud-cover-layer', 'visibility', showCloudCover ? 'visible' : 'none')
+    }
+    if (showCloudCover && map.getSource('cloud-cover')) {
+      (map.getSource('cloud-cover') as maplibregl.GeoJSONSource).setData(buildCloudGeoJSON(cloudCover))
+    }
+  }, [showCloudCover, cloudCover, mapReady])
+
+  // ── F-road filter marker highlight ───────────────────────────────────────
+  useEffect(() => {
+    if (!mapReady) return
+    markerStore.forEach((marker, id) => {
+      const loc = locations.find((l) => l.id === id)
+      if (!loc) return
+      const el = marker.getElement()
+      if (!fRoadFilter) {
+        // Reset to normal (let selected-location styling take over via its own effect)
+        el.style.opacity = '1'
+        el.style.transform = 'scale(1)'
+        el.style.filter = ''
+      } else if (loc.fRoad) {
+        el.style.opacity = '1'
+        el.style.transform = 'scale(1.5)'
+        el.style.filter = 'drop-shadow(0 0 6px rgba(245,166,35,0.9))'
+      } else {
+        el.style.opacity = '0.2'
+        el.style.transform = 'scale(0.8)'
+        el.style.filter = ''
+      }
+    })
+  }, [fRoadFilter, locations, mapReady])
+
   // ── Navigation route (road geometry from OSRM) ────────────────────────────
   useEffect(() => {
     const map = mapRef.current
@@ -476,6 +536,25 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
         </div>
       )}
 
+      {/* Cloud cover badge */}
+      {showCloudCover && (
+        <div style={{
+          position: 'absolute', top: 12, left: activeTab === 'aurora' && auroraData ? 140 : 12, zIndex: 10,
+          display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
+          borderRadius: 10, background: 'rgba(18,20,28,0.95)',
+          border: `1px solid ${cloudCover < 30 ? 'rgba(6,182,212,0.4)' : cloudCover < 70 ? 'rgba(139,151,168,0.4)' : 'rgba(71,85,105,0.5)'}`,
+        }}>
+          <span style={{ fontSize: 13 }}>☁️</span>
+          <span style={{ color: '#8a8f9e', fontSize: 11, fontWeight: 600 }}>Cloud</span>
+          <span style={{
+            fontWeight: 700, fontSize: 14,
+            color: cloudCover < 30 ? '#06b6d4' : cloudCover < 70 ? '#94a3b8' : '#64748b',
+          }}>
+            {Math.round(cloudCover)}%
+          </span>
+        </div>
+      )}
+
       {/* Sun direction indicator */}
       {showSunBearing && (
         <div style={{
@@ -557,6 +636,28 @@ function addMarkers(
       .addTo(map)
     markerStore.set(loc.id, marker)
   })
+}
+
+// Iceland coverage points for cloud overlay
+const CLOUD_POINTS: [number, number][] = [
+  [-18.9, 65.0], [-22.5, 64.0], [-14.0, 65.5],
+  [-24.0, 65.5], [-17.0, 66.2], [-20.5, 63.8],
+  [-13.5, 64.5], [-21.0, 65.5],
+]
+
+function buildCloudGeoJSON(cloudCover: number): GeoJSON.FeatureCollection {
+  // Color: clear=teal, partial=yellow, overcast=blue-gray
+  const color = cloudCover < 30 ? '#06b6d4' : cloudCover < 70 ? '#8b97a8' : '#475569'
+  const opacity = 0.08 + (cloudCover / 100) * 0.18
+
+  return {
+    type: 'FeatureCollection',
+    features: CLOUD_POINTS.map(([lng, lat], i) => ({
+      type: 'Feature',
+      properties: { color, opacity, id: i },
+      geometry: { type: 'Point', coordinates: [lng, lat] },
+    })),
+  }
 }
 
 function buildAuroraGeoJSON(kpIndex: number): GeoJSON.FeatureCollection {
