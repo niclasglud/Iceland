@@ -357,62 +357,78 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     })
   }, [showSunBearing, sunriseAzimuth, sunsetAzimuth, mapReady, locations])
 
-  // ── Cloud cover satellite tiles (RainViewer infrared) ────────────────────
+  // ── Cloud cover overlay — multi-point from /api/cloud-cover ─────────────
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
 
     if (!showCloudCover) {
-      if (map.getLayer('cloud-tile-layer')) {
-        map.setLayoutProperty('cloud-tile-layer', 'visibility', 'none')
-      }
+      if (map.getLayer('cloud-tile-layer')) map.setLayoutProperty('cloud-tile-layer', 'visibility', 'none')
+      if (map.getLayer('cloud-points-layer')) map.setLayoutProperty('cloud-points-layer', 'visibility', 'none')
       return
     }
 
-    const loadCloudTiles = async () => {
+    const loadClouds = async () => {
       try {
-        // Fetch through our server-side proxy to avoid CORS issues
-        const res = await fetch('/api/cloud-tiles')
-        if (!res.ok) throw new Error(`/api/cloud-tiles ${res.status}`)
-        const { tileUrl } = await res.json() as { tileUrl: string }
-        if (!tileUrl) throw new Error('No tileUrl returned')
+        const res = await fetch('/api/cloud-cover')
+        if (!res.ok) throw new Error(`/api/cloud-cover ${res.status}`)
+        const points: { lat: number; lng: number; cloudCover: number; name: string }[] = await res.json()
 
-        // Wait until the map style is fully loaded before adding sources/layers
-        const applyLayer = () => {
-          // Remove existing to allow refresh
-          if (map.getLayer('cloud-tile-layer')) map.removeLayer('cloud-tile-layer')
-          if (map.getSource('cloud-tiles')) map.removeSource('cloud-tiles')
-
-          map.addSource('cloud-tiles', {
-            type: 'raster',
-            tiles: [tileUrl],
-            tileSize: 512,
-            attribution: '© RainViewer',
-          })
-          // Insert cloud layer ABOVE terrain but BELOW location markers
-          // (beforeId = 'aurora-fill' keeps it under our GeoJSON layers)
-          map.addLayer(
-            {
-              id: 'cloud-tile-layer',
-              type: 'raster',
-              source: 'cloud-tiles',
-              paint: { 'raster-opacity': 0.7 },
+        const geojson: GeoJSON.FeatureCollection = {
+          type: 'FeatureCollection',
+          features: points.map(p => ({
+            type: 'Feature' as const,
+            properties: {
+              cloudCover: p.cloudCover,
+              // Color by cloud cover: clear=blue, partial=slate, overcast=white-gray
+              color: p.cloudCover < 20
+                ? '#93c5fd'   // clear blue
+                : p.cloudCover < 50
+                ? '#94a3b8'   // light slate
+                : p.cloudCover < 80
+                ? '#cbd5e1'   // silver
+                : '#e2e8f0',  // white-gray (heavy overcast)
+              opacity: 0.12 + (p.cloudCover / 100) * 0.38, // 0.12–0.50 based on cover
             },
-            'aurora-fill' // insert below aurora circles
-          )
+            geometry: { type: 'Point' as const, coordinates: [p.lng, p.lat] },
+          })),
         }
 
-        if (map.isStyleLoaded()) {
-          applyLayer()
+        // Remove existing layers first
+        if (map.getLayer('cloud-tile-layer')) { map.removeLayer('cloud-tile-layer'); map.removeSource('cloud-tiles') }
+        if (map.getLayer('cloud-points-layer')) map.removeLayer('cloud-points-layer')
+        if (map.getSource('cloud-points')) {
+          (map.getSource('cloud-points') as maplibregl.GeoJSONSource).setData(geojson)
+          map.setLayoutProperty('cloud-points-layer', 'visibility', 'visible')
         } else {
-          map.once('idle', applyLayer)
+          map.addSource('cloud-points', { type: 'geojson', data: geojson })
+          map.addLayer({
+            id: 'cloud-points-layer',
+            type: 'circle',
+            source: 'cloud-points',
+            paint: {
+              'circle-radius': [
+                'interpolate', ['linear'], ['zoom'],
+                4, 100,
+                6, 160,
+                8, 220,
+              ],
+              'circle-color': ['get', 'color'],
+              'circle-opacity': ['get', 'opacity'],
+              'circle-blur': 0.6,
+            },
+          })
         }
       } catch (err) {
-        console.error('[CloudCover] Failed to load satellite tiles:', err)
+        console.error('[CloudCover]', err)
       }
     }
 
-    loadCloudTiles()
+    if (map.isStyleLoaded()) {
+      loadClouds()
+    } else {
+      map.once('idle', loadClouds)
+    }
   }, [showCloudCover, mapReady])
 
   // ── F-road filter marker highlight ───────────────────────────────────────
@@ -572,16 +588,16 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
           position: 'absolute', top: 12, left: activeTab === 'aurora' && auroraData ? 140 : 12, zIndex: 10,
           display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px',
           borderRadius: 10, background: 'rgba(18,20,28,0.95)',
-          border: '1px solid rgba(6,182,212,0.35)',
+          border: `1px solid ${cloudCover < 30 ? 'rgba(147,197,253,0.5)' : cloudCover < 70 ? 'rgba(148,163,184,0.5)' : 'rgba(226,232,240,0.4)'}`,
         }}>
-          <span style={{ fontSize: 13 }}>🛰️</span>
+          <span style={{ fontSize: 13 }}>☁️</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <span style={{ color: '#06b6d4', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>Satellite</span>
-            <span style={{ color: '#8a8f9e', fontSize: 9, lineHeight: 1 }}>Cloud cover live</span>
+            <span style={{ color: '#e2e8f0', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>Cloud Cover</span>
+            <span style={{ color: '#8a8f9e', fontSize: 9, lineHeight: 1 }}>8 stations · live</span>
           </div>
           <span style={{
             fontWeight: 700, fontSize: 13, marginLeft: 4,
-            color: cloudCover < 30 ? '#06b6d4' : cloudCover < 70 ? '#94a3b8' : '#64748b',
+            color: cloudCover < 30 ? '#93c5fd' : cloudCover < 70 ? '#94a3b8' : '#e2e8f0',
           }}>
             {Math.round(cloudCover)}%
           </span>
