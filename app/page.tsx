@@ -39,6 +39,7 @@ export default function HomePage() {
   const [detailLocation, setDetailLocation] = useState<Location | null>(null)
   const [selectedWeatherDay, setSelectedWeatherDay] = useState<number | null>(null)
   const [navigationTarget, setNavigationTarget] = useState<Location | null>(null)
+  const [navigationFrom, setNavigationFrom] = useState<Location | null>(null)
   const [routeData, setRouteData] = useState<RouteData | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null)
@@ -83,7 +84,7 @@ export default function HomePage() {
       .catch(() => setWeather(getMockWeatherData(coords[1], coords[0])))
   }, [selectedLocation])
 
-  // Fetch real road route via OSRM when navigationTarget changes
+  // Fetch real road route when navigationTarget/From changes
   useEffect(() => {
     if (!navigationTarget) {
       setRouteData(null)
@@ -101,14 +102,20 @@ export default function HomePage() {
     const fetchRoute = (fromLng: number, fromLat: number) => {
       fetch(`/api/route?fromLng=${fromLng}&fromLat=${fromLat}&toLng=${toLng}&toLat=${toLat}`)
         .then((r) => r.json())
-        .then((data: RouteData) => {
-          if (data.geometry) setRouteData(data)
-        })
+        .then((data: RouteData) => { if (data.geometry) setRouteData(data) })
         .catch(console.error)
         .finally(() => setRouteLoading(false))
     }
 
-    // Start GPS watch for live position updates
+    // If user picked a manual start location, use it directly (no GPS watch)
+    if (navigationFrom) {
+      const [fLng, fLat] = navigationFrom.coordinates
+      setUserCoords([fLng, fLat])
+      fetchRoute(fLng, fLat)
+      return
+    }
+
+    // Otherwise track GPS
     if (navigator.geolocation) {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (pos) => {
@@ -117,17 +124,18 @@ export default function HomePage() {
           fetchRoute(coords[0], coords[1])
         },
         () => {
-          // GPS denied — use Reykjavik as start
-          const defaultStart: [number, number] = [-21.9426, 64.1355]
-          setUserCoords(null)
-          fetchRoute(defaultStart[0], defaultStart[1])
+          // GPS denied — fall back to Reykjavik
+          const reykjavik: [number, number] = [-21.9426, 64.1355]
+          setUserCoords(reykjavik)
+          fetchRoute(reykjavik[0], reykjavik[1])
           setRouteLoading(false)
         },
         { enableHighAccuracy: true, maximumAge: 30000 }
       )
     } else {
-      const defaultStart: [number, number] = [-21.9426, 64.1355]
-      fetchRoute(defaultStart[0], defaultStart[1])
+      const reykjavik: [number, number] = [-21.9426, 64.1355]
+      setUserCoords(reykjavik)
+      fetchRoute(reykjavik[0], reykjavik[1])
     }
 
     return () => {
@@ -136,7 +144,7 @@ export default function HomePage() {
         watchIdRef.current = null
       }
     }
-  }, [navigationTarget])
+  }, [navigationTarget, navigationFrom])
 
   const handleLocationSelect = useCallback(
     (location: Location) => {
@@ -216,6 +224,7 @@ export default function HomePage() {
                 userCoords={userCoords}
                 onClose={() => {
                   setNavigationTarget(null)
+                  setNavigationFrom(null)
                   setRouteData(null)
                 }}
               />
@@ -300,12 +309,11 @@ export default function HomePage() {
           }
         }}
         showSunBearing={showSunBearing}
-        onNavigate={(loc) => {
-          setNavigationTarget(loc)
-          if (loc) {
-            setActiveTab('map')
-            setIsToolsOpen(false)
-          }
+        onNavigate={(dest, fromLoc) => {
+          setNavigationTarget(dest)
+          setNavigationFrom(fromLoc ?? null)
+          setActiveTab('map')
+          setIsToolsOpen(false)
         }}
       />
     </div>
@@ -473,14 +481,21 @@ function NavigationHUD({
               <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {nextStep.instruction}
               </div>
-              {distToNext != null && (
-                <div style={{ color: '#f5a623', fontSize: 13, fontWeight: 600, marginTop: 2 }}>
-                  in {fmtDist(distToNext)}
-                </div>
-              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                {distToNext != null && (
+                  <span style={{ color: '#f5a623', fontSize: 13, fontWeight: 600 }}>
+                    in {fmtDist(distToNext)}
+                  </span>
+                )}
+                {routeData?.isEstimate && (
+                  <span style={{ color: '#8a8f9e', fontSize: 10, background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 4 }}>
+                    est. route
+                  </span>
+                )}
+              </div>
             </>
           ) : (
-            <div style={{ color: '#8a8f9e', fontSize: 13 }}>No route available</div>
+            <div style={{ color: '#8a8f9e', fontSize: 13 }}>Calculating…</div>
           )}
         </div>
       </div>

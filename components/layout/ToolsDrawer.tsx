@@ -26,10 +26,43 @@ interface ToolsDrawerProps {
   selectedLocation?: Location | null
   onShowSunBearing: (show: boolean) => void
   showSunBearing: boolean
-  onNavigate?: (loc: Location | null) => void
+  onNavigate?: (dest: Location, fromLocation?: Location | null) => void
 }
 
 // ── Internal sub-components ─────────────────────────────────────────────────
+
+const TYPE_ICONS: Record<string, string> = {
+  waterfall: '💧', glacier: '🧊', volcano: '🌋', lake: '🏞️',
+  canyon: '🏜️', beach: '🏖️', 'hot-spring': '♨️', lava: '🔥',
+  mountain: '⛰️', ruins: '🏛️', geothermal: '💨', valley: '🌿',
+}
+
+function LocationRow({ loc, isFirst, onSelect }: { loc: Location; isFirst: boolean; onSelect: () => void }) {
+  return (
+    <button
+      onClick={onSelect}
+      style={{
+        width: '100%', textAlign: 'left', background: 'none', border: 'none',
+        borderTop: isFirst ? 'none' : '1px solid rgba(255,255,255,0.06)',
+        padding: '9px 12px', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}
+    >
+      <span style={{ fontSize: 15, flexShrink: 0 }}>{TYPE_ICONS[loc.type] ?? '📍'}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {loc.name}
+        </div>
+        <div style={{ fontSize: 11, color: '#8a8f9e' }}>
+          {loc.region.replace(/-/g, ' ')} · {loc.distance ? `${loc.distance} km` : loc.type}
+        </div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 14 14" style={{ flexShrink: 0, color: '#8a8f9e' }}>
+        <path d="M4 7h6M7 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      </svg>
+    </button>
+  )
+}
 
 interface SectionProps {
   icon: React.ReactNode
@@ -195,28 +228,36 @@ export default function ToolsDrawer({
   showSunBearing,
   onNavigate,
 }: ToolsDrawerProps) {
-  const [fromMode, setFromMode] = useState<'current' | 'start'>('current')
-  const [searchValue, setSearchValue] = useState('')
+  const [fromMode, setFromMode] = useState<'current' | 'search'>('current')
+  const [fromSearch, setFromSearch] = useState('')
+  const [fromLoc, setFromLoc] = useState<Location | null>(null)
+  const [toSearch, setToSearch] = useState('')
   const [navDest, setNavDest] = useState<Location | null>(null)
   const [dlState, setDlState] = useState<'idle' | 'downloading' | 'done'>('idle')
   const [dlProgress, setDlProgress] = useState(0)
   const drawerRef = useRef<HTMLDivElement>(null)
 
-  // Filter locations by search query
-  const searchResults = searchValue.trim().length > 0
-    ? locations.filter(l =>
-        l.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        (l.icelandicName ?? '').toLowerCase().includes(searchValue.toLowerCase()) ||
-        l.type.toLowerCase().includes(searchValue.toLowerCase())
-      ).slice(0, 6)
-    : []
+  const filterLocs = (q: string) =>
+    q.trim().length > 0
+      ? locations.filter(l =>
+          l.name.toLowerCase().includes(q.toLowerCase()) ||
+          (l.icelandicName ?? '').toLowerCase().includes(q.toLowerCase()) ||
+          l.type.toLowerCase().includes(q.toLowerCase())
+        ).slice(0, 5)
+      : []
+
+  const fromResults = filterLocs(fromSearch)
+  const toResults   = filterLocs(toSearch)
 
   // Active destination: either searched+selected, or pre-selected spot
   const destination = navDest ?? selectedLocation ?? null
 
-  // Reset navDest when drawer closes
+  // Reset when drawer closes
   useEffect(() => {
-    if (!isOpen) { setSearchValue(''); setNavDest(null) }
+    if (!isOpen) {
+      setToSearch(''); setNavDest(null)
+      setFromSearch(''); setFromLoc(null); setFromMode('current')
+    }
   }, [isOpen])
 
   // Prevent body scroll when open
@@ -355,126 +396,112 @@ export default function ToolsDrawer({
               SECTION 1: Navigation
           ──────────────────────────────────────────── */}
           <Section icon={<Navigation size={15} />} title="Navigation">
-            {/* FROM row */}
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: '#8a8f9e' }}>
-                From
-              </span>
-              <div className="flex items-center gap-2">
+
+            {/* ── FROM ── */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: '#8a8f9e' }}>From</span>
+
+              {/* Mode toggle */}
+              <div className="flex gap-2">
                 <button
-                  onClick={() => setFromMode('current')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  onClick={() => { setFromMode('current'); setFromLoc(null); setFromSearch('') }}
                   style={{
-                    background: fromMode === 'current' ? 'transparent' : 'transparent',
-                    border: fromMode === 'current'
-                      ? '1px solid #f5a623'
-                      : '1px solid rgba(255,255,255,0.12)',
+                    flex: 1, height: 34, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    background: 'none',
+                    border: fromMode === 'current' ? '1px solid #f5a623' : '1px solid rgba(255,255,255,0.12)',
                     color: fromMode === 'current' ? '#f5a623' : '#8a8f9e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
                   }}
                 >
-                  <LocateFixed size={12} />
-                  Current Location
+                  <LocateFixed size={12} /> GPS Location
                 </button>
                 <button
-                  onClick={() => setFromMode('start')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  onClick={() => setFromMode('search')}
                   style={{
-                    background: 'transparent',
-                    border: fromMode === 'start'
-                      ? '1px solid #f5a623'
-                      : '1px solid rgba(255,255,255,0.12)',
-                    color: fromMode === 'start' ? '#f5a623' : '#8a8f9e',
+                    flex: 1, height: 34, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    background: 'none',
+                    border: fromMode === 'search' ? '1px solid #f5a623' : '1px solid rgba(255,255,255,0.12)',
+                    color: fromMode === 'search' ? '#f5a623' : '#8a8f9e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
                   }}
                 >
-                  <MapPin size={12} />
-                  Start
+                  <Search size={12} /> Enter spot
                 </button>
               </div>
+
+              {/* FROM search (visible when mode = search) */}
+              {fromMode === 'search' && (
+                <>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 10px', borderRadius: 8,
+                    background: 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${fromLoc ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                  }}>
+                    <MapPin size={13} style={{ color: '#8a8f9e', flexShrink: 0 }} />
+                    <input
+                      type="text"
+                      value={fromLoc ? fromLoc.name : fromSearch}
+                      onChange={e => { setFromSearch(e.target.value); setFromLoc(null) }}
+                      onFocus={() => { if (fromLoc) { setFromSearch(fromLoc.name); setFromLoc(null) } }}
+                      placeholder="Type a starting spot…"
+                      className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#4b5563] text-white"
+                    />
+                    {(fromLoc || fromSearch) && (
+                      <button onClick={() => { setFromSearch(''); setFromLoc(null) }}
+                        style={{ background: 'none', border: 'none', color: '#8a8f9e', cursor: 'pointer', lineHeight: 1, padding: 2 }}>✕</button>
+                    )}
+                  </div>
+                  {fromResults.length > 0 && !fromLoc && (
+                    <div style={{ borderRadius: 10, background: 'rgba(18,20,28,0.98)', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                      {fromResults.map((loc, i) => (
+                        <LocationRow key={loc.id} loc={loc} isFirst={i === 0} onSelect={() => { setFromLoc(loc); setFromSearch('') }} />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
-            {/* DESTINATION search */}
+            {/* ── DESTINATION ── */}
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: '#8a8f9e' }}>
-                Destination
-              </span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: '#8a8f9e' }}>Destination</span>
 
-              {/* Search input */}
-              <div
-                className="flex items-center gap-2 px-2.5 rounded-lg"
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: `1px solid ${navDest ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                  height: '40px',
-                }}
-              >
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 10px', borderRadius: 8,
+                background: 'rgba(255,255,255,0.06)',
+                border: `1px solid ${navDest ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              }}>
                 <Search size={13} style={{ color: '#8a8f9e', flexShrink: 0 }} />
                 <input
                   type="text"
-                  value={navDest ? navDest.name : searchValue}
-                  onChange={e => { setSearchValue(e.target.value); setNavDest(null) }}
-                  onFocus={() => { if (navDest) { setSearchValue(navDest.name); setNavDest(null) } }}
+                  value={navDest ? navDest.name : toSearch}
+                  onChange={e => { setToSearch(e.target.value); setNavDest(null) }}
+                  onFocus={() => { if (navDest) { setToSearch(navDest.name); setNavDest(null) } }}
                   placeholder="Search waterfalls, glaciers…"
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#4b5563] text-white"
                 />
-                {(navDest || searchValue) && (
-                  <button onClick={() => { setSearchValue(''); setNavDest(null) }}
-                    style={{ color: '#8a8f9e', background: 'none', border: 'none', cursor: 'pointer', padding: 2, lineHeight: 1 }}>
-                    ✕
-                  </button>
+                {(navDest || toSearch) && (
+                  <button onClick={() => { setToSearch(''); setNavDest(null) }}
+                    style={{ background: 'none', border: 'none', color: '#8a8f9e', cursor: 'pointer', lineHeight: 1, padding: 2 }}>✕</button>
                 )}
               </div>
 
-              {/* Search results dropdown */}
-              {searchResults.length > 0 && !navDest && (
-                <div style={{
-                  borderRadius: 10,
-                  background: 'rgba(18,20,28,0.98)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  overflow: 'hidden',
-                }}>
-                  {searchResults.map((loc, i) => (
-                    <button
-                      key={loc.id}
-                      onClick={() => { setNavDest(loc); setSearchValue('') }}
-                      style={{
-                        width: '100%', textAlign: 'left', background: 'none', border: 'none',
-                        borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                        padding: '10px 12px', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 10,
-                      }}
-                    >
-                      <span style={{ fontSize: 16, flexShrink: 0 }}>
-                        {{ waterfall:'💧', glacier:'🧊', volcano:'🌋', lake:'🏞️', canyon:'🏜️',
-                           beach:'🏖️', 'hot-spring':'♨️', lava:'🔥', mountain:'⛰️',
-                           ruins:'🏛️', geothermal:'💨', valley:'🌿' }[loc.type] ?? '📍'}
-                      </span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {loc.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: '#8a8f9e' }}>
-                          {loc.region.replace(/-/g, ' ')} · {loc.distance ? `${loc.distance} km` : loc.type}
-                        </div>
-                      </div>
-                      <svg width="14" height="14" viewBox="0 0 14 14" style={{ flexShrink: 0, color: '#8a8f9e' }}>
-                        <path d="M4 7h6M7 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                      </svg>
-                    </button>
+              {toResults.length > 0 && !navDest && (
+                <div style={{ borderRadius: 10, background: 'rgba(18,20,28,0.98)', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                  {toResults.map((loc, i) => (
+                    <LocationRow key={loc.id} loc={loc} isFirst={i === 0} onSelect={() => { setNavDest(loc); setToSearch('') }} />
                   ))}
                 </div>
               )}
 
-              {/* Fallback: pre-selected spot from map */}
-              {!navDest && !searchValue && selectedLocation && (
-                <button
-                  onClick={() => setNavDest(selectedLocation)}
+              {/* Pre-selected spot shortcut */}
+              {!navDest && !toSearch && selectedLocation && (
+                <button onClick={() => setNavDest(selectedLocation)}
                   style={{
                     width: '100%', textAlign: 'left', background: 'rgba(245,166,35,0.06)',
                     border: '1px solid rgba(245,166,35,0.2)', borderRadius: 10,
-                    padding: '8px 12px', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 8,
-                  }}
-                >
+                    padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                  }}>
                   <MapPin size={13} style={{ color: '#f5a623', flexShrink: 0 }} />
                   <span style={{ fontSize: 12, color: '#f5a623', flex: 1 }}>
                     Use selected: <strong>{selectedLocation.name}</strong>
@@ -486,10 +513,7 @@ export default function ToolsDrawer({
             {/* START NAVIGATION button */}
             {destination && onNavigate && (
               <button
-                onClick={() => {
-                  onNavigate(destination)
-                  onClose()
-                }}
+                onClick={() => { onNavigate(destination, fromMode === 'search' ? fromLoc : null); onClose() }}
                 style={{
                   width: '100%', height: 48, borderRadius: 12, fontWeight: 700, fontSize: 15,
                   background: '#f5a623', color: '#0a0b0e', border: 'none', cursor: 'pointer',
@@ -498,7 +522,7 @@ export default function ToolsDrawer({
                 }}
               >
                 <Navigation size={16} />
-                Start Navigation to {destination.name}
+                Start — {destination.name}
               </button>
             )}
 

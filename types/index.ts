@@ -132,6 +132,7 @@ export interface RouteData {
   duration: number    // total seconds
   geometry: { type: 'LineString'; coordinates: [number, number][] }
   steps: RouteStep[]
+  isEstimate?: boolean  // true when real routing failed, using straight-line
 }
 
 export interface AppState {
