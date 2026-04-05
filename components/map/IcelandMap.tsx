@@ -23,6 +23,8 @@ interface IcelandMapProps {
   activeTab: string
   auroraData?: { kpIndex: number }
   navigationTarget?: Location | null
+  routeGeometry?: { type: 'LineString'; coordinates: [number, number][] } | null
+  userCoords?: [number, number] | null
 }
 
 const AURORA_ZONES: [number, number][] = [
@@ -43,10 +45,12 @@ export default function IcelandMap({
   isExpanded,
   activeTab,
   auroraData,
-  navigationTarget,
+  routeGeometry,
+  userCoords,
 }: IcelandMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
+  const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
   const [mapReady, setMapReady] = useState(false)
 
@@ -171,6 +175,8 @@ export default function IcelandMap({
     init()
 
     return () => {
+      userMarkerRef.current?.remove()
+      userMarkerRef.current = null
       mapRef.current?.remove()
       mapRef.current = null
       markerStore.clear()
@@ -293,50 +299,60 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     source.setData({ type: 'FeatureCollection', features })
   }, [showSunBearing, sunAzimuth, sunAltitude, mapReady, locations])
 
-  // ── Navigation route ──────────────────────────────────────────────────────
+  // ── Navigation route (road geometry from OSRM) ────────────────────────────
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
     const source = map.getSource('nav-route') as maplibregl.GeoJSONSource | undefined
     if (!source) return
 
-    if (!navigationTarget) {
+    if (!routeGeometry) {
       source.setData({ type: 'FeatureCollection', features: [] })
       return
     }
 
-    const startCoord: [number, number] = [-21.9426, 64.1355]
-    const endCoord = navigationTarget.coordinates as [number, number]
+    source.setData({
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: {}, geometry: routeGeometry }],
+    })
 
-    const drawRoute = (fromCoord: [number, number]) => {
-      source!.setData({
-        type: 'FeatureCollection',
-        features: [{
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'LineString', coordinates: [fromCoord, endCoord] },
-        }],
-      })
-      map.fitBounds(
-        [[Math.min(fromCoord[0], endCoord[0]) - 0.5, Math.min(fromCoord[1], endCoord[1]) - 0.3],
-         [Math.max(fromCoord[0], endCoord[0]) + 0.5, Math.max(fromCoord[1], endCoord[1]) + 0.3]],
-        { padding: 80, pitch: 45 }
-      )
+    // Fit map to route bounds
+    const coords = routeGeometry.coordinates
+    const lngs = coords.map((c) => c[0])
+    const lats = coords.map((c) => c[1])
+    map.fitBounds(
+      [[Math.min(...lngs) - 0.1, Math.min(...lats) - 0.05],
+       [Math.max(...lngs) + 0.1, Math.max(...lats) + 0.05]],
+      { padding: { top: 100, bottom: 180, left: 40, right: 40 }, pitch: 50, duration: 1200 }
+    )
+  }, [routeGeometry, mapReady])
+
+  // ── User location blue dot ─────────────────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+
+    if (!userCoords) {
+      userMarkerRef.current?.remove()
+      userMarkerRef.current = null
+      return
     }
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          drawRoute([pos.coords.longitude, pos.coords.latitude])
-        },
-        () => {
-          drawRoute(startCoord)
-        }
-      )
+    if (!userMarkerRef.current) {
+      const el = document.createElement('div')
+      el.style.cssText = `
+        width: 18px; height: 18px; border-radius: 50%;
+        background: #4a9eff;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px rgba(74,158,255,0.35), 0 2px 8px rgba(0,0,0,0.5);
+      `
+      userMarkerRef.current = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat(userCoords)
+        .addTo(map)
     } else {
-      drawRoute(startCoord)
+      userMarkerRef.current.setLngLat(userCoords)
     }
-  }, [navigationTarget, mapReady])
+  }, [userCoords, mapReady])
 
   if (mapError) {
     return (

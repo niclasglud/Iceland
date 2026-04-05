@@ -118,6 +118,22 @@ export interface MoonInfo {
 
 export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather'
 
+export interface RouteStep {
+  instruction: string
+  distance: number    // meters
+  duration: number    // seconds
+  maneuver: string    // e.g. 'turn-left', 'turn-right', 'straight', 'arrive'
+  streetName: string
+  location: [number, number]  // [lng, lat] of the maneuver point
+}
+
+export interface RouteData {
+  distance: number    // total meters
+  duration: number    // total seconds
+  geometry: { type: 'LineString'; coordinates: [number, number][] }
+  steps: RouteStep[]
+}
+
 export interface AppState {
   activeTab: ActiveTab
   selectedLocation: Location | null

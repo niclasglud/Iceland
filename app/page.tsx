@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { ActiveTab, Location, AuroraData, WeatherData, SunInfo, MoonInfo } from '@/types'
+import { ActiveTab, Location, AuroraData, WeatherData, SunInfo, MoonInfo, RouteData, RouteStep } from '@/types'
 import { getSunInfo, getMoonInfo, ICELAND_CENTER } from '@/lib/suncalc-utils'
 import { getMockAuroraData } from '@/lib/aurora'
 import { getMockWeatherData } from '@/lib/weather'
@@ -39,6 +39,10 @@ export default function HomePage() {
   const [detailLocation, setDetailLocation] = useState<Location | null>(null)
   const [selectedWeatherDay, setSelectedWeatherDay] = useState<number | null>(null)
   const [navigationTarget, setNavigationTarget] = useState<Location | null>(null)
+  const [routeData, setRouteData] = useState<RouteData | null>(null)
+  const [routeLoading, setRouteLoading] = useState(false)
+  const [userCoords, setUserCoords] = useState<[number, number] | null>(null)
+  const watchIdRef = useRef<number | null>(null)
 
   const [sunInfo, setSunInfo] = useState<SunInfo>(() =>
     getSunInfo(new Date(), ICELAND_CENTER[0], ICELAND_CENTER[1])
@@ -78,6 +82,61 @@ export default function HomePage() {
       .then(setWeather)
       .catch(() => setWeather(getMockWeatherData(coords[1], coords[0])))
   }, [selectedLocation])
+
+  // Fetch real road route via OSRM when navigationTarget changes
+  useEffect(() => {
+    if (!navigationTarget) {
+      setRouteData(null)
+      setUserCoords(null)
+      if (watchIdRef.current != null) {
+        navigator.geolocation?.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+      return
+    }
+
+    setRouteLoading(true)
+    const [toLng, toLat] = navigationTarget.coordinates
+
+    const fetchRoute = (fromLng: number, fromLat: number) => {
+      fetch(`/api/route?fromLng=${fromLng}&fromLat=${fromLat}&toLng=${toLng}&toLat=${toLat}`)
+        .then((r) => r.json())
+        .then((data: RouteData) => {
+          if (data.geometry) setRouteData(data)
+        })
+        .catch(console.error)
+        .finally(() => setRouteLoading(false))
+    }
+
+    // Start GPS watch for live position updates
+    if (navigator.geolocation) {
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        (pos) => {
+          const coords: [number, number] = [pos.coords.longitude, pos.coords.latitude]
+          setUserCoords(coords)
+          fetchRoute(coords[0], coords[1])
+        },
+        () => {
+          // GPS denied — use Reykjavik as start
+          const defaultStart: [number, number] = [-21.9426, 64.1355]
+          setUserCoords(null)
+          fetchRoute(defaultStart[0], defaultStart[1])
+          setRouteLoading(false)
+        },
+        { enableHighAccuracy: true, maximumAge: 30000 }
+      )
+    } else {
+      const defaultStart: [number, number] = [-21.9426, 64.1355]
+      fetchRoute(defaultStart[0], defaultStart[1])
+    }
+
+    return () => {
+      if (watchIdRef.current != null) {
+        navigator.geolocation?.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+    }
+  }, [navigationTarget])
 
   const handleLocationSelect = useCallback(
     (location: Location) => {
@@ -144,7 +203,23 @@ export default function HomePage() {
               activeTab={activeTab}
               auroraData={auroraData}
               navigationTarget={navigationTarget}
+              routeGeometry={routeData?.geometry ?? null}
+              userCoords={userCoords}
             />
+
+            {/* Navigation HUD */}
+            {navigationTarget && (
+              <NavigationHUD
+                target={navigationTarget}
+                routeData={routeData}
+                loading={routeLoading}
+                userCoords={userCoords}
+                onClose={() => {
+                  setNavigationTarget(null)
+                  setRouteData(null)
+                }}
+              />
+            )}
 
             {/* Elevation badge */}
             {elevationBadge && (
@@ -228,6 +303,239 @@ export default function HomePage() {
         }}
       />
     </div>
+  )
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function haversineMeters(a: [number, number], b: [number, number]): number {
+  const R = 6371000
+  const lat1 = (a[1] * Math.PI) / 180
+  const lat2 = (b[1] * Math.PI) / 180
+  const dLat = lat2 - lat1
+  const dLng = ((b[0] - a[0]) * Math.PI) / 180
+  return R * 2 * Math.asin(Math.sqrt(Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2))
+}
+
+function fmtDist(m: number): string {
+  if (m < 1000) return `${Math.round(m)} m`
+  return `${(m / 1000).toFixed(1)} km`
+}
+
+function fmtDuration(s: number): string {
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  if (h > 0) return `${h}h ${m}m`
+  return `${m} min`
+}
+
+function ManeuverArrow({ maneuver }: { maneuver: string }) {
+  const size = 32
+  const c = '#f5a623'
+  if (maneuver === 'arrive') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="7" fill={c} />
+        <circle cx="16" cy="16" r="11" fill="none" stroke={c} strokeWidth="2" />
+      </svg>
+    )
+  }
+  if (maneuver === 'u-turn') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <path d="M10 24 L10 12 Q10 6 16 6 Q22 6 22 12 L22 16" fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" />
+        <polygon points="22,22 18,14 26,14" fill={c} />
+      </svg>
+    )
+  }
+  if (maneuver === 'turn-left' || maneuver === 'turn-sharp-left') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <path d="M22 26 L22 16 Q22 10 16 10 L10 10" fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" />
+        <polygon points="6,10 14,6 14,14" fill={c} />
+      </svg>
+    )
+  }
+  if (maneuver === 'turn-right' || maneuver === 'turn-sharp-right') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <path d="M10 26 L10 16 Q10 10 16 10 L22 10" fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" />
+        <polygon points="26,10 18,6 18,14" fill={c} />
+      </svg>
+    )
+  }
+  if (maneuver === 'turn-slight-left') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <path d="M20 26 L20 18 Q20 10 12 10" fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" />
+        <polygon points="8,10 16,6 16,14" fill={c} />
+      </svg>
+    )
+  }
+  if (maneuver === 'turn-slight-right') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <path d="M12 26 L12 18 Q12 10 20 10" fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" />
+        <polygon points="24,10 16,6 16,14" fill={c} />
+      </svg>
+    )
+  }
+  if (maneuver === 'roundabout') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="7" fill="none" stroke={c} strokeWidth="2.5" />
+        <polygon points="16,4 20,10 12,10" fill={c} />
+      </svg>
+    )
+  }
+  // straight / depart / default
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32">
+      <line x1="16" y1="26" x2="16" y2="8" stroke={c} strokeWidth="3" strokeLinecap="round" />
+      <polygon points="16,4 11,12 21,12" fill={c} />
+    </svg>
+  )
+}
+
+function NavigationHUD({
+  target,
+  routeData,
+  loading,
+  userCoords,
+  onClose,
+}: {
+  target: Location
+  routeData: RouteData | null
+  loading: boolean
+  userCoords: [number, number] | null
+  onClose: () => void
+}) {
+  // Find next step based on proximity to user
+  const nextStep: RouteStep | null = (() => {
+    if (!routeData?.steps?.length) return null
+    if (!userCoords) return routeData.steps[0] ?? null
+    // Skip depart step, find nearest upcoming maneuver
+    const steps = routeData.steps.filter((s) => s.maneuver !== 'depart')
+    let closestIdx = 0
+    let minDist = Infinity
+    steps.forEach((step, i) => {
+      const d = haversineMeters(userCoords, step.location)
+      if (d < minDist) { minDist = d; closestIdx = i }
+    })
+    return steps[closestIdx] ?? null
+  })()
+
+  const distToNext = nextStep && userCoords
+    ? haversineMeters(userCoords, nextStep.location)
+    : null
+
+  const totalDist = routeData?.distance ?? null
+  const totalDur = routeData?.duration ?? null
+
+  // Distance remaining (approx: from user to destination)
+  const remainingDist = userCoords && target.coordinates
+    ? haversineMeters(userCoords, target.coordinates as [number, number])
+    : totalDist
+
+  return (
+    <>
+      {/* Top instruction bar */}
+      <div
+        style={{
+          position: 'absolute', top: 8, left: 12, right: 12, zIndex: 30,
+          borderRadius: 16,
+          background: 'rgba(10,11,14,0.97)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          padding: '12px 16px',
+          display: 'flex', alignItems: 'center', gap: 14,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+        }}
+      >
+        {loading ? (
+          <div style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #f5a623', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+        ) : (
+          <ManeuverArrow maneuver={nextStep?.maneuver ?? 'straight'} />
+        )}
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {loading ? (
+            <div style={{ color: '#8a8f9e', fontSize: 13 }}>Calculating route…</div>
+          ) : nextStep ? (
+            <>
+              <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {nextStep.instruction}
+              </div>
+              {distToNext != null && (
+                <div style={{ color: '#f5a623', fontSize: 13, fontWeight: 600, marginTop: 2 }}>
+                  in {fmtDist(distToNext)}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ color: '#8a8f9e', fontSize: 13 }}>No route available</div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom info bar */}
+      <div
+        style={{
+          position: 'absolute', bottom: 8, left: 12, right: 12, zIndex: 30,
+          borderRadius: 16,
+          background: 'rgba(10,11,14,0.97)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          padding: '12px 16px',
+          display: 'flex', alignItems: 'center', gap: 10,
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.4)',
+        }}
+      >
+        {/* Destination dot */}
+        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f5a623', flexShrink: 0 }} />
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: '#fff', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {target.name}
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
+            {remainingDist != null && (
+              <span style={{ color: '#8a8f9e', fontSize: 12 }}>{fmtDist(remainingDist)}</span>
+            )}
+            {totalDur != null && (
+              <span style={{ color: '#8a8f9e', fontSize: 12 }}>~{fmtDuration(totalDur)}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Step count */}
+        {routeData?.steps && (
+          <div style={{ color: '#8a8f9e', fontSize: 11, textAlign: 'center', flexShrink: 0 }}>
+            <div style={{ color: '#fff', fontWeight: 600, fontSize: 13 }}>{routeData.steps.length}</div>
+            <div>steps</div>
+          </div>
+        )}
+
+        {/* Close */}
+        <button
+          onClick={onClose}
+          style={{
+            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            color: 'white', fontSize: 16, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* CSS for spinner */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </>
   )
 }
 
