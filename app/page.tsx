@@ -221,6 +221,8 @@ export default function HomePage() {
               showSunBearing={showSunBearing}
               sunAzimuth={sunInfo.azimuth}
               sunAltitude={sunInfo.altitude}
+              sunriseAzimuth={sunInfo.sunriseAzimuth}
+              sunsetAzimuth={sunInfo.sunsetAzimuth}
               isExpanded={true}
               activeTab={activeTab}
               auroraData={auroraData}

@@ -104,8 +104,10 @@ export interface SunInfo {
   nadir: Date
   isMidnightSun: boolean
   isPolarNight: boolean
-  azimuth: number // degrees 0-360
-  altitude: number // degrees -90 to 90
+  azimuth: number     // current sun azimuth degrees 0-360
+  altitude: number    // current sun altitude degrees -90 to 90
+  sunriseAzimuth: number  // sun azimuth at moment of sunrise
+  sunsetAzimuth: number   // sun azimuth at moment of sunset
 }
 
 export interface MoonInfo {

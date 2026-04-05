@@ -19,6 +19,8 @@ interface IcelandMapProps {
   showSunBearing: boolean
   sunAzimuth: number
   sunAltitude: number
+  sunriseAzimuth: number
+  sunsetAzimuth: number
   isExpanded: boolean
   activeTab: string
   auroraData?: { kpIndex: number }
@@ -44,6 +46,8 @@ export default function IcelandMap({
   showSunBearing,
   sunAzimuth,
   sunAltitude,
+  sunriseAzimuth,
+  sunsetAzimuth,
   isExpanded,
   activeTab,
   auroraData,
@@ -119,20 +123,37 @@ export default function IcelandMap({
           layout: { visibility: activeTab === 'aurora' ? 'visible' : 'none' },
         })
 
-        // Sun rays source/layer
-        map.addSource('sun-rays', {
+        // Sunrise rays source/layer (yellow)
+        map.addSource('sunrise-rays', {
           type: 'geojson',
           data: { type: 'FeatureCollection', features: [] },
         })
         map.addLayer({
-          id: 'sun-rays-layer',
+          id: 'sunrise-rays-layer',
           type: 'line',
-          source: 'sun-rays',
+          source: 'sunrise-rays',
           paint: {
-            'line-color': '#f5a623',
-            'line-width': 1.5,
-            'line-opacity': 0.5,
-            'line-dasharray': [3, 3],
+            'line-color': '#ffd700',
+            'line-width': 2,
+            'line-opacity': 0.65,
+            'line-dasharray': [4, 3],
+          },
+        })
+
+        // Sunset rays source/layer (orange)
+        map.addSource('sunset-rays', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        })
+        map.addLayer({
+          id: 'sunset-rays-layer',
+          type: 'line',
+          source: 'sunset-rays',
+          paint: {
+            'line-color': '#ff7820',
+            'line-width': 2,
+            'line-opacity': 0.65,
+            'line-dasharray': [4, 3],
           },
         })
 
@@ -258,75 +279,75 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     })
   }, [userCoords, userBearing, isFollowing, mapReady])
 
-  // ── Sun bearing rays ──────────────────────────────────────────────────────
+  // ── Sunrise / Sunset light direction rays ────────────────────────────────
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
-    const source = map.getSource('sun-rays') as maplibregl.GeoJSONSource | undefined
-    if (!source) return
+    const srcRise = map.getSource('sunrise-rays') as maplibregl.GeoJSONSource | undefined
+    const srcSet  = map.getSource('sunset-rays')  as maplibregl.GeoJSONSource | undefined
+    if (!srcRise || !srcSet) return
 
     if (!showSunBearing) {
-      source.setData({ type: 'FeatureCollection', features: [] })
-      markerStore.forEach((marker, id) => {
-        const loc = locations.find(l => l.id === id)
-        if (loc) {
-          const el = marker.getElement()
-          el.style.opacity = '1'
-          el.style.transform = 'scale(1)'
-          el.style.boxShadow = ''
-        }
+      srcRise.setData({ type: 'FeatureCollection', features: [] })
+      srcSet.setData({ type: 'FeatureCollection', features: [] })
+      // Reset all marker styles
+      markerStore.forEach((marker) => {
+        const el = marker.getElement()
+        el.style.opacity = '1'
+        el.style.transform = 'scale(1)'
+        el.style.boxShadow = ''
       })
       return
     }
 
-    const azRad = (sunAzimuth * Math.PI) / 180
-    const rayLength = 0.12
-    const features: GeoJSON.Feature[] = []
-
-    locations.forEach(loc => {
-      const [lng, lat] = loc.coordinates
-      const dLng = Math.sin(azRad) * rayLength
-      const dLat = Math.cos(azRad) * rayLength
-      features.push({
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [lng - dLng * 0.3, lat - dLat * 0.3],
-            [lng + dLng, lat + dLat],
-          ],
-        },
-      })
-
-      const marker = markerStore.get(loc.id)
-      if (marker) {
-        const el = marker.getElement()
-        const sunIsRising = sunAzimuth > 30 && sunAzimuth < 150
-        const sunIsSetting = sunAzimuth > 210 && sunAzimuth < 330
-        const sunIsUp = sunAltitude > 0
-        const sunIsLow = sunAltitude > -6 && sunAltitude < 15
-        const isNight = sunAltitude < -6
-
-        let isHighlighted = false
-        if (sunIsUp && sunIsLow && sunIsRising && (loc.bestLight.includes('sunrise') || loc.bestLight.includes('golden-hour'))) {
-          isHighlighted = true
-        } else if (sunIsUp && sunIsLow && sunIsSetting && (loc.bestLight.includes('sunset') || loc.bestLight.includes('golden-hour'))) {
-          isHighlighted = true
-        } else if (isNight && loc.bestLight.includes('northern-lights')) {
-          isHighlighted = true
-        } else if (sunIsUp && !sunIsLow && loc.bestLight.includes('overcast')) {
-          isHighlighted = true
+    const buildRays = (azimuth: number): GeoJSON.Feature[] => {
+      const azRad = (azimuth * Math.PI) / 180
+      const rayLength = 0.14
+      return locations.map(loc => {
+        const [lng, lat] = loc.coordinates
+        const dLng = Math.sin(azRad) * rayLength
+        const dLat = Math.cos(azRad) * rayLength
+        return {
+          type: 'Feature' as const,
+          properties: {},
+          geometry: {
+            type: 'LineString' as const,
+            coordinates: [
+              [lng - dLng * 0.25, lat - dLat * 0.25],
+              [lng + dLng, lat + dLat],
+            ],
+          },
         }
+      })
+    }
 
-        el.style.opacity = isHighlighted ? '1' : '0.35'
-        el.style.boxShadow = isHighlighted ? '0 0 12px 4px rgba(245,166,35,0.8)' : ''
-        el.style.transform = isHighlighted ? 'scale(1.4)' : 'scale(0.85)'
+    srcRise.setData({ type: 'FeatureCollection', features: buildRays(sunriseAzimuth) })
+    srcSet.setData({ type: 'FeatureCollection', features: buildRays(sunsetAzimuth) })
+
+    // Highlight markers: yellow = sunrise spots, orange = sunset spots
+    markerStore.forEach((marker, id) => {
+      const loc = locations.find(l => l.id === id)
+      if (!loc) return
+      const el = marker.getElement()
+
+      const isSunriseSpot = loc.bestLight.includes('sunrise') || loc.bestLight.includes('golden-hour')
+      const isSunsetSpot  = loc.bestLight.includes('sunset')
+
+      if (isSunriseSpot) {
+        el.style.opacity = '1'
+        el.style.transform = 'scale(1.4)'
+        el.style.boxShadow = '0 0 12px 5px rgba(255,215,0,0.85)'
+      } else if (isSunsetSpot) {
+        el.style.opacity = '1'
+        el.style.transform = 'scale(1.4)'
+        el.style.boxShadow = '0 0 12px 5px rgba(255,120,32,0.85)'
+      } else {
+        el.style.opacity = '0.3'
+        el.style.transform = 'scale(0.8)'
+        el.style.boxShadow = ''
       }
     })
-
-    source.setData({ type: 'FeatureCollection', features })
-  }, [showSunBearing, sunAzimuth, sunAltitude, mapReady, locations])
+  }, [showSunBearing, sunriseAzimuth, sunsetAzimuth, mapReady, locations])
 
   // ── Navigation route (road geometry from OSRM) ────────────────────────────
   useEffect(() => {

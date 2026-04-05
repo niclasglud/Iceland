@@ -22,6 +22,15 @@ export function getSunInfo(date: Date, lng: number, lat: number): SunInfo {
   const azimuth = ((pos.azimuth * 180) / Math.PI + 180) % 360
   const altitude = (pos.altitude * 180) / Math.PI
 
+  // Fixed azimuths at moment of sunrise/sunset (not current sun position)
+  const toAz = (r: number) => ((r * 180) / Math.PI + 180) % 360
+  const sunriseAzimuth = !isNaN(times.sunrise.getTime())
+    ? toAz(SunCalc.getPosition(times.sunrise, lat, lng).azimuth)
+    : 75   // typical easterly default
+  const sunsetAzimuth = !isNaN(times.sunset.getTime())
+    ? toAz(SunCalc.getPosition(times.sunset, lat, lng).azimuth)
+    : 285  // typical westerly default
+
   return {
     date,
     dawn: times.dawn,
@@ -37,6 +46,8 @@ export function getSunInfo(date: Date, lng: number, lat: number): SunInfo {
     isPolarNight,
     azimuth,
     altitude,
+    sunriseAzimuth,
+    sunsetAzimuth,
   }
 }
 
