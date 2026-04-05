@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@maptiler/sdk": "^3.11.1",
     "@types/mapbox-gl": "^3.4.1",
     "@types/suncalc": "^1.9.2",
