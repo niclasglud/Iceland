@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Location, BestLight } from '@/types'
 import { getFRoadStatus } from '@/lib/spot-scoring'
@@ -51,6 +51,7 @@ export default function SpotsList({
   onFRoadFilterChange,
   featuredSpots,
 }: SpotsListProps) {
+  const [picksCollapsed, setPicksCollapsed] = useState(false)
   const nowMonth = new Date().getMonth()
   const fRoadStatus = getFRoadStatus(nowMonth)
 
@@ -114,13 +115,27 @@ export default function SpotsList({
       {/* ── Today's Picks carousel ───────────────────────────────────────────── */}
       {featuredSpots && featuredSpots.length > 0 && (
         <div className="px-3 pt-2 shrink-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#f5a623', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-              ⭐ Today&apos;s Picks
-            </span>
-            <span style={{ fontSize: 10, color: '#8a8f9e' }}>Best conditions now</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#f5a623', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                ⭐ Today&apos;s Picks
+              </span>
+              {!picksCollapsed && (
+                <span style={{ fontSize: 10, color: '#8a8f9e' }}>Best conditions now</span>
+              )}
+            </div>
+            <button
+              onClick={() => setPicksCollapsed(v => !v)}
+              style={{
+                fontSize: 10, fontWeight: 600, cursor: 'pointer',
+                background: 'transparent', border: 'none',
+                color: '#8a8f9e', padding: '2px 6px',
+              }}
+            >
+              {picksCollapsed ? '▼ Show' : '▲ Hide'}
+            </button>
           </div>
-          <div
+          {!picksCollapsed && <div
             className="flex gap-2 overflow-x-auto pb-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
@@ -182,7 +197,7 @@ export default function SpotsList({
                 </div>
               </button>
             ))}
-          </div>
+          </div>}
           {/* Divider */}
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 4 }} />
         </div>
