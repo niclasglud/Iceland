@@ -3,10 +3,12 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['maplibre-gl'],
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'source.unsplash.com' },
       { protocol: 'https', hostname: 'api.maptiler.com' },
+      { protocol: 'https', hostname: 'images.pexels.com' },
     ],
   },
 }
