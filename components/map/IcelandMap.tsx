@@ -26,6 +26,7 @@ interface IcelandMapProps {
   routeGeometry?: { type: 'LineString'; coordinates: [number, number][] } | null
   userCoords?: [number, number] | null
   userBearing?: number   // degrees 0-360, direction of travel
+  followUser?: boolean   // camera tracks user position in nav mode
 }
 
 const AURORA_ZONES: [number, number][] = [
@@ -49,12 +50,14 @@ export default function IcelandMap({
   routeGeometry,
   userCoords,
   userBearing = 0,
+  followUser = false,
 }: IcelandMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
   const [mapReady, setMapReady] = useState(false)
+  const [isFollowing, setIsFollowing] = useState(false)
 
   // ── Init map ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -164,6 +167,10 @@ export default function IcelandMap({
         setMapReady(true)
       })
 
+      // Detect user-initiated panning → exit follow mode
+      map.on('dragstart', () => setIsFollowing(false))
+      map.on('pitchstart', () => setIsFollowing(false))
+
       map.on('error', (e) => {
         console.error('[IcelandMap] error:', e)
         setMapError(`Map error: ${e.error?.message ?? JSON.stringify(e)}`)
@@ -230,6 +237,26 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
   useEffect(() => {
     setTimeout(() => mapRef.current?.resize(), 100)
   }, [isExpanded])
+
+  // ── Reset follow mode when navigation starts/stops ────────────────────────
+  useEffect(() => {
+    setIsFollowing(followUser)
+  }, [followUser])
+
+  // ── Follow user (Google Maps navigation camera) ───────────────────────────
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady || !userCoords || !isFollowing) return
+
+    map.easeTo({
+      center: userCoords,
+      bearing: userBearing,
+      pitch: 60,
+      zoom: 15,
+      duration: 800,
+      easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+    })
+  }, [userCoords, userBearing, isFollowing, mapReady])
 
   // ── Sun bearing rays ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -382,8 +409,8 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
     <div className="relative w-full h-full" style={{ background: '#0a0b0e' }}>
       <div ref={containerRef} style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }} />
 
-      {/* Zoom controls */}
-      <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {/* Zoom controls — pushed down during navigation so they don't overlap HUD */}
+      <div style={{ position: 'absolute', top: followUser ? 'auto' : 12, bottom: followUser ? 80 : 'auto', right: 12, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
         {[{ label: '+', action: () => mapRef.current?.zoomIn() }, { label: '−', action: () => mapRef.current?.zoomOut() }].map(({ label, action }) => (
           <button
             key={label}
@@ -443,6 +470,33 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
             <circle cx="10" cy="10" r="2.5" fill="#f5a623" />
           </svg>
         </div>
+      )}
+
+      {/* Re-center button — appears when user pans away during navigation */}
+      {followUser && !isFollowing && userCoords && (
+        <button
+          onClick={() => setIsFollowing(true)}
+          style={{
+            position: 'absolute', bottom: 80, left: '50%', transform: 'translateX(-50%)',
+            zIndex: 20, display: 'flex', alignItems: 'center', gap: 8,
+            padding: '10px 20px', borderRadius: 99,
+            background: 'rgba(10,11,14,0.97)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#4a9eff', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          }}
+        >
+          {/* Target crosshair */}
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="5" stroke="#4a9eff" strokeWidth="1.5"/>
+            <circle cx="8" cy="8" r="2" fill="#4a9eff"/>
+            <line x1="8" y1="0" x2="8" y2="4" stroke="#4a9eff" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="8" y1="12" x2="8" y2="16" stroke="#4a9eff" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="0" y1="8" x2="4" y2="8" stroke="#4a9eff" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="12" y1="8" x2="16" y2="8" stroke="#4a9eff" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          Re-center
+        </button>
       )}
     </div>
   )

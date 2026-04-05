@@ -180,13 +180,16 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-[100dvh] w-screen overflow-hidden bg-[#0a0b0e] select-none">
-      <TopNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        selectedLocation={selectedLocation}
-        onMenuClick={() => setIsToolsOpen(true)}
-        onToolsClick={() => setIsToolsOpen(true)}
-      />
+      {/* Hide top nav during navigation for full-screen map */}
+      {!navigationTarget && (
+        <TopNav
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          selectedLocation={selectedLocation}
+          onMenuClick={() => setIsToolsOpen(true)}
+          onToolsClick={() => setIsToolsOpen(true)}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden relative">
@@ -225,6 +228,7 @@ export default function HomePage() {
               routeGeometry={routeData?.geometry ?? null}
               userCoords={userCoords}
               userBearing={userBearing}
+              followUser={!!navigationTarget}
             />
 
             {/* Navigation HUD */}
@@ -280,17 +284,20 @@ export default function HomePage() {
         )}
       </div>
 
-      <BottomPanel
-        sunInfo={sunInfo}
-        moonInfo={moonInfo}
-        weather={weather}
-        scrubTime={scrubTime}
-        onScrub={(d) => setScrubTime(d)}
-        isNightMode={isNightMode}
-        onNightModeToggle={() => setIsNightMode((v) => !v)}
-        onDaySelect={(idx) => setSelectedWeatherDay(idx < 0 ? null : idx)}
-        selectedDayIndex={selectedWeatherDay}
-      />
+      {/* Hide bottom panel during navigation — map fills full screen */}
+      {!navigationTarget && (
+        <BottomPanel
+          sunInfo={sunInfo}
+          moonInfo={moonInfo}
+          weather={weather}
+          scrubTime={scrubTime}
+          onScrub={(d) => setScrubTime(d)}
+          isNightMode={isNightMode}
+          onNightModeToggle={() => setIsNightMode((v) => !v)}
+          onDaySelect={(idx) => setSelectedWeatherDay(idx < 0 ? null : idx)}
+          selectedDayIndex={selectedWeatherDay}
+        />
+      )}
 
       {/* Full-screen spot detail overlay */}
       {detailLocation && (
