@@ -371,31 +371,42 @@ const lightColor = sunAltitude > 10 ? '#ffffff' : sunAltitude > 0 ? '#ffd580' : 
 
     const loadCloudTiles = async () => {
       try {
-        const res = await fetch('https://api.rainviewer.com/public/weather-maps.json')
-        const data = await res.json()
-        const infrared: { path: string; time: number }[] = data.satellite?.infrared ?? []
-        if (!infrared.length) return
+        // Fetch through our server-side proxy to avoid CORS issues
+        const res = await fetch('/api/cloud-tiles')
+        if (!res.ok) throw new Error(`/api/cloud-tiles ${res.status}`)
+        const { tileUrl } = await res.json() as { tileUrl: string }
+        if (!tileUrl) throw new Error('No tileUrl returned')
 
-        // Latest satellite frame
-        const latest = infrared[infrared.length - 1]
-        const tileUrl = `https://tilecache.rainviewer.com${latest.path}512/{z}/{x}/{y}/0/0_0.png`
+        // Wait until the map style is fully loaded before adding sources/layers
+        const applyLayer = () => {
+          // Remove existing to allow refresh
+          if (map.getLayer('cloud-tile-layer')) map.removeLayer('cloud-tile-layer')
+          if (map.getSource('cloud-tiles')) map.removeSource('cloud-tiles')
 
-        // Remove existing layer/source so we can refresh
-        if (map.getLayer('cloud-tile-layer')) map.removeLayer('cloud-tile-layer')
-        if (map.getSource('cloud-tiles')) map.removeSource('cloud-tiles')
+          map.addSource('cloud-tiles', {
+            type: 'raster',
+            tiles: [tileUrl],
+            tileSize: 512,
+            attribution: '© RainViewer',
+          })
+          // Insert cloud layer ABOVE terrain but BELOW location markers
+          // (beforeId = 'aurora-fill' keeps it under our GeoJSON layers)
+          map.addLayer(
+            {
+              id: 'cloud-tile-layer',
+              type: 'raster',
+              source: 'cloud-tiles',
+              paint: { 'raster-opacity': 0.7 },
+            },
+            'aurora-fill' // insert below aurora circles
+          )
+        }
 
-        map.addSource('cloud-tiles', {
-          type: 'raster',
-          tiles: [tileUrl],
-          tileSize: 512,
-          attribution: '© RainViewer',
-        })
-        map.addLayer({
-          id: 'cloud-tile-layer',
-          type: 'raster',
-          source: 'cloud-tiles',
-          paint: { 'raster-opacity': 0.65 },
-        })
+        if (map.isStyleLoaded()) {
+          applyLayer()
+        } else {
+          map.once('idle', applyLayer)
+        }
       } catch (err) {
         console.error('[CloudCover] Failed to load satellite tiles:', err)
       }
