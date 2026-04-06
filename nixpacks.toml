@@ -1,0 +1,13 @@
+[phases.setup]
+nixPkgs = ['nodejs_20']
+
+[phases.install]
+cmds = ['npm ci --prefer-offline']
+cacheDirectories = ['/root/.npm', '.next/cache']
+
+[phases.build]
+cmds = ['npm run build']
+cacheDirectories = ['.next/cache']
+
+[start]
+cmd = 'npm start'
