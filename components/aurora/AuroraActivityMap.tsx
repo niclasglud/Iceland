@@ -352,7 +352,7 @@ export default function AuroraActivityMap({ kpIndex }: AuroraActivityMapProps) {
         {/* Legend */}
         <g transform="translate(8, 8)">
           <rect width={110} height={60} rx={5} fill="rgba(10,11,14,0.82)" />
-          <text x={8} y={16} fontSize={8} fill="#8a8f9e" fontWeight="bold" textTransform="uppercase">
+          <text x={8} y={16} fontSize={8} fill="#8a8f9e" fontWeight="bold" style={{ textTransform: 'uppercase' as const }}>
             Activity Level
           </text>
           {[
