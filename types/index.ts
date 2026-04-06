@@ -60,6 +60,7 @@ export interface AuroraData {
   probability: number // 0–100%
   bestViewingTime?: string
   cloudCover?: number // 0–100%
+  dataSource?: string // e.g. 'NOAA SWPC 1-min Kp'
 }
 
 export interface HourlyPoint {

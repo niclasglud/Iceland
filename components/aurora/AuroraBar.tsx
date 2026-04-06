@@ -2,6 +2,7 @@
 
 import { Sparkles, Moon, Cloud, MapPin, Star } from 'lucide-react'
 import { getKpColor, getKpLabel, getAuroraDescription } from '@/lib/aurora'
+import AuroraActivityMap from './AuroraActivityMap'
 
 interface AuroraBarProps {
   kpIndex: number
@@ -9,6 +10,7 @@ interface AuroraBarProps {
   bestViewingTime?: string
   cloudCover: number
   forecast: { time: string; kp: number }[]
+  dataSource?: string
   onViewMap: () => void
 }
 
@@ -76,6 +78,7 @@ export default function AuroraBar({
   bestViewingTime,
   cloudCover,
   forecast,
+  dataSource,
   onViewMap,
 }: AuroraBarProps) {
   const kpColor = getKpColor(kpIndex)
@@ -140,7 +143,21 @@ export default function AuroraBar({
           <span style={{ fontSize: 12, fontWeight: 600, color: '#8a8f9e', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             KP Index
           </span>
-          <span style={{ fontSize: 11, color: '#5a5f6e' }}>0 – 9 geomagnetic scale</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+            <span style={{ fontSize: 11, color: '#5a5f6e' }}>0 – 9 geomagnetic scale</span>
+            {dataSource && (
+              <span style={{
+                fontSize: 9,
+                color: dataSource === 'mock' ? '#ef4444' : '#00ff88',
+                backgroundColor: dataSource === 'mock' ? 'rgba(239,68,68,0.1)' : 'rgba(0,255,136,0.08)',
+                padding: '1px 6px',
+                borderRadius: 8,
+                border: `1px solid ${dataSource === 'mock' ? 'rgba(239,68,68,0.2)' : 'rgba(0,255,136,0.15)'}`,
+              }}>
+                {dataSource === 'mock' ? 'Demo data' : `Live · ${dataSource}`}
+              </span>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 14 }}>
@@ -256,6 +273,25 @@ export default function AuroraBar({
         <p style={{ margin: 0, fontSize: 14, color: '#c0c5d0', lineHeight: 1.6 }}>
           {description}
         </p>
+      </div>
+
+      {/* ── Aurora Activity Map ── */}
+      <div
+        style={{
+          backgroundColor: 'rgba(18,20,28,0.95)',
+          borderRadius: 14,
+          padding: '14px 16px',
+          marginBottom: 14,
+          border: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#8a8f9e', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Activity Map
+          </span>
+          <span style={{ fontSize: 10, color: '#5a5f6e' }}>Where aurora may be visible tonight</span>
+        </div>
+        <AuroraActivityMap kpIndex={kpIndex} />
       </div>
 
       {/* ── 24h KP Forecast Chart ── */}

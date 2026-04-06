@@ -280,6 +280,7 @@ export default function HomePage() {
               bestViewingTime={auroraData.bestViewingTime}
               cloudCover={auroraData.cloudCover ?? 20}
               forecast={auroraData.kpForecast}
+              dataSource={auroraData.dataSource}
               onViewMap={() => setActiveTab('map')}
             />
           </div>

@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server'
 
-// NOAA SWPC planetary K-index endpoint
-// Response is an array of rows: [datetime_tag, kp, status]
-// First row is a header row that must be skipped
-const NOAA_KP_URL =
+// Official NOAA SWPC data sources
+// Primary: 1-minute planetary K-index (most real-time)
+// Secondary: 3-hour planetary K-index history
+// Forecast: 3-day KP forecast product
+const NOAA_1MIN_URL =
+  'https://services.swpc.noaa.gov/json/planetary_k_index_1m.json'
+const NOAA_3HR_URL =
   'https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json'
-
-interface NoaaKpRow {
-  0: string  // datetime string e.g. "2024-01-15 00:00:00.000"
-  1: string  // kp value as string
-  2: string  // status string
-}
+const NOAA_FORECAST_URL =
+  'https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json'
 
 interface KpForecastEntry {
   time: string
@@ -23,6 +22,7 @@ interface AuroraApiResponse {
   probability: number
   bestViewingTime?: string
   cloudCover: number
+  dataSource: string
 }
 
 function computeProbability(kp: number, cloudCover: number): number {
@@ -39,9 +39,8 @@ function computeProbability(kp: number, cloudCover: number): number {
 
 function findBestViewingTime(forecast: KpForecastEntry[]): string | undefined {
   if (forecast.length === 0) return undefined
-  // Among entries with kp >= 3 prefer those in night hours (21–03)
   const nightEntries = forecast.filter((e) => {
-    const h = new Date(e.time).getHours()
+    const h = new Date(e.time).getUTCHours()
     return (h >= 21 || h <= 3) && e.kp >= 3
   })
   const pool = nightEntries.length > 0 ? nightEntries : forecast
@@ -50,13 +49,15 @@ function findBestViewingTime(forecast: KpForecastEntry[]): string | undefined {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
+    timeZone: 'UTC',
   })
 }
 
 function getMockResponse(): AuroraApiResponse {
-  const kpIndex = 3.0
-  const cloudCover = 25
   const now = new Date()
+  // Use a dynamic base value instead of a hardcoded 3.0
+  const seed = now.getUTCDate() + now.getUTCHours() * 0.1
+  const kpIndex = Math.round((1.5 + ((seed * 7919) % 3.5)) * 10) / 10
 
   const kpForecast: KpForecastEntry[] = Array.from({ length: 24 }, (_, i) => {
     const t = new Date(now)
@@ -67,81 +68,153 @@ function getMockResponse(): AuroraApiResponse {
     return { time: t.toISOString(), kp }
   })
 
+  const cloudCover = 30
   return {
     kpIndex,
     kpForecast,
     probability: computeProbability(kpIndex, cloudCover),
     bestViewingTime: findBestViewingTime(kpForecast),
     cloudCover,
+    dataSource: 'mock',
+  }
+}
+
+// Parse 1-minute NOAA endpoint: returns array of [time_tag, kp_index, ...]
+async function fetchCurrentKpFrom1Min(): Promise<{ kpIndex: number; history: KpForecastEntry[] } | null> {
+  try {
+    const res = await fetch(NOAA_1MIN_URL, { cache: 'no-store' })
+    if (!res.ok) return null
+
+    // Format: array of objects or arrays; structure varies, parse defensively
+    const raw: unknown = await res.json()
+    if (!Array.isArray(raw) || raw.length === 0) return null
+
+    const entries: KpForecastEntry[] = []
+
+    for (const item of raw) {
+      let timeStr: string | undefined
+      let kpVal: number | undefined
+
+      if (Array.isArray(item)) {
+        // [time_tag, kp, ...]
+        timeStr = String(item[0])
+        kpVal = parseFloat(String(item[1]))
+      } else if (item && typeof item === 'object') {
+        const obj = item as Record<string, unknown>
+        timeStr = String(obj.time_tag ?? obj.time ?? '')
+        kpVal = parseFloat(String(obj.kp_index ?? obj.kp ?? 'NaN'))
+      }
+
+      if (!timeStr || kpVal === undefined || isNaN(kpVal)) continue
+
+      const isoTime = timeStr.replace(' ', 'T').replace(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*/, '$1') + 'Z'
+      entries.push({ time: isoTime, kp: Math.round(kpVal * 10) / 10 })
+    }
+
+    if (entries.length === 0) return null
+
+    // Latest reading
+    const latest = entries[entries.length - 1]
+    return { kpIndex: latest.kp, history: entries.slice(-24) }
+  } catch {
+    return null
+  }
+}
+
+// Parse 3-hour NOAA endpoint: [[header], [time, kp, status], ...]
+async function fetchFrom3Hr(): Promise<{ kpIndex: number; history: KpForecastEntry[] } | null> {
+  try {
+    const res = await fetch(NOAA_3HR_URL, { cache: 'no-store' })
+    if (!res.ok) return null
+
+    const raw: unknown[][] = await res.json()
+    const rows = raw.slice(1) // skip header
+
+    const entries: KpForecastEntry[] = rows
+      .map((row) => {
+        const kpVal = parseFloat(String(row[1]))
+        if (isNaN(kpVal)) return null
+        const timeStr = String(row[0]).replace(' ', 'T') + 'Z'
+        return { time: timeStr, kp: Math.round(kpVal * 10) / 10 }
+      })
+      .filter((e): e is KpForecastEntry => e !== null)
+
+    if (entries.length === 0) return null
+
+    const latest = entries[entries.length - 1]
+    return { kpIndex: latest.kp, history: entries.slice(-24) }
+  } catch {
+    return null
+  }
+}
+
+// Fetch 3-day forecast from NOAA: [[header], [time, kp, observed, scale], ...]
+async function fetchForecast(): Promise<KpForecastEntry[]> {
+  try {
+    const res = await fetch(NOAA_FORECAST_URL, { cache: 'no-store' })
+    if (!res.ok) return []
+
+    const raw: unknown[][] = await res.json()
+    const rows = raw.slice(1)
+    const now = Date.now()
+
+    return rows
+      .map((row) => {
+        const kpVal = parseFloat(String(row[1]))
+        if (isNaN(kpVal)) return null
+        const timeStr = String(row[0]).replace(' ', 'T') + 'Z'
+        return { time: timeStr, kp: Math.round(kpVal * 10) / 10 }
+      })
+      .filter((e): e is KpForecastEntry => {
+        if (!e) return false
+        const t = new Date(e.time).getTime()
+        return t >= now && t <= now + 24 * 3600 * 1000
+      })
+  } catch {
+    return []
   }
 }
 
 export async function GET() {
-  try {
-    const res = await fetch(NOAA_KP_URL, {
-      next: { revalidate: 900 }, // cache 15 minutes
-      headers: { 'User-Agent': 'IcelandApp/1.0' },
-    })
+  const cloudCover = 30
 
-    if (!res.ok) {
-      console.warn('[aurora/route] NOAA fetch failed, status:', res.status)
-      return NextResponse.json(getMockResponse())
-    }
+  // Try 1-minute data first (most current), then fall back to 3-hour data
+  let current = await fetchCurrentKpFrom1Min()
+  let dataSource = 'NOAA SWPC 1-min Kp'
 
-    const raw: NoaaKpRow[] = await res.json()
+  if (!current) {
+    current = await fetchFrom3Hr()
+    dataSource = 'NOAA SWPC 3-hr Kp'
+  }
 
-    // First row is the header — skip it
-    const rows = raw.slice(1)
-
-    if (!rows || rows.length === 0) {
-      return NextResponse.json(getMockResponse())
-    }
-
-    // Parse each row: [datetime, kp_string, status]
-    const parsed: KpForecastEntry[] = rows
-      .map((row) => {
-        const kpNum = parseFloat(row[1])
-        if (isNaN(kpNum)) return null
-        return {
-          time: new Date(row[0].replace(' ', 'T') + 'Z').toISOString(),
-          kp: Math.round(kpNum * 10) / 10,
-        }
-      })
-      .filter((e): e is KpForecastEntry => e !== null)
-
-    if (parsed.length === 0) {
-      return NextResponse.json(getMockResponse())
-    }
-
-    // Latest KP = last entry in the series
-    const latest = parsed[parsed.length - 1]
-    const kpIndex = latest.kp
-
-    // 24-hour window from now
-    const now = Date.now()
-    const in24h = now + 24 * 3600 * 1000
-    const kpForecast = parsed.filter((e) => {
-      const t = new Date(e.time).getTime()
-      return t >= now - 3600_000 && t <= in24h
-    })
-
-    // If the API has only historical data (no future), use last 24 entries
-    const forecastWindow = kpForecast.length > 0 ? kpForecast : parsed.slice(-24)
-
-    // Simulated cloud cover (Open-Meteo would provide this; use a placeholder here)
-    const cloudCover = 30
-
-    const response: AuroraApiResponse = {
-      kpIndex,
-      kpForecast: forecastWindow,
-      probability: computeProbability(kpIndex, cloudCover),
-      bestViewingTime: findBestViewingTime(forecastWindow),
-      cloudCover,
-    }
-
-    return NextResponse.json(response)
-  } catch (err) {
-    console.error('[aurora/route] Error:', err)
+  if (!current) {
+    console.warn('[aurora/route] All NOAA endpoints failed, returning mock data')
     return NextResponse.json(getMockResponse())
   }
+
+  // Fetch forecast in parallel (best-effort)
+  const forecastEntries = await fetchForecast()
+
+  // Build the 24h chart window: recent history + near-future forecast
+  const combined: KpForecastEntry[] = [...current.history, ...forecastEntries]
+    .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+
+  const now = Date.now()
+  const chartWindow = combined.filter((e) => {
+    const t = new Date(e.time).getTime()
+    return t >= now - 6 * 3600 * 1000 && t <= now + 24 * 3600 * 1000
+  })
+
+  const forecastWindow = chartWindow.length > 0 ? chartWindow : current.history.slice(-12)
+
+  const response: AuroraApiResponse = {
+    kpIndex: current.kpIndex,
+    kpForecast: forecastWindow,
+    probability: computeProbability(current.kpIndex, cloudCover),
+    bestViewingTime: findBestViewingTime(forecastWindow),
+    cloudCover,
+    dataSource,
+  }
+
+  return NextResponse.json(response)
 }
