@@ -185,27 +185,6 @@ export default function TripPlanner({ stops, onStopsChange, onSwitchToSpots }: T
                     </div>
                   ))}
 
-                  {/* Add day button */}
-                  <button
-                    onClick={() => {
-                      const newDay = Math.max(...days) + 1
-                      // placeholder: adding next day doesn't move anything but makes day available for move
-                      const updated = [...stops, {
-                        id: `day-${newDay}-placeholder-${Date.now()}`,
-                        locationId: '',
-                        name: `Day ${newDay} — add stops from Spots`,
-                        thumbnail: '',
-                        coordinates: [0, 0] as [number, number],
-                        region: 'ring-road',
-                        type: 'placeholder',
-                        day: newDay,
-                      }]
-                      // Actually just note: add real stops from Spots
-                      // For simplicity, we won't add placeholders — just show day count + 1 hint
-                      void updated // suppress lint
-                    }}
-                    style={{ display: 'none' }}
-                  />
                 </div>
               )}
             </div>

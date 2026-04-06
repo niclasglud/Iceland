@@ -27,12 +27,6 @@ const SEVERITY_CONFIG = {
   green:  { color: '#10b981', bg: 'rgba(16,185,129,0.10)', border: 'rgba(16,185,129,0.25)', label: 'Clear' },
 }
 
-const REGION_COLORS: Record<string, string> = {
-  'ring-road': '#4a9eff', 'highlands': '#f5a623', 'westfjords': '#8b5cf6',
-  'snaefellsnes': '#06b6d4', 'reykjanes': '#ef4444', 'east': '#10b981',
-  'north': '#60a5fa', 'south': '#fbbf24',
-}
-
 export default function SafetyPanel() {
   const [data, setData] = useState<RoadConditionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -45,7 +39,6 @@ export default function SafetyPanel() {
       .catch(() => setLoading(false))
   }, [])
 
-  const currentMonth = new Date().getMonth()
   const openRoads  = F_ROADS.filter((r) => getFRoadCurrentStatus(r) === 'open')
   const marginal   = F_ROADS.filter((r) => getFRoadCurrentStatus(r) === 'marginal')
   const closedRoads = F_ROADS.filter((r) => getFRoadCurrentStatus(r) === 'closed')
