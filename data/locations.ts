@@ -1220,7 +1220,7 @@ export const locations: Location[] = [
     auroraRating: 3,
     description: "A remote volcanic massif encircling the Askja caldera, forming a fortress of ridges and peaks that rise from the lava deserts of the interior. The approach on the highland F88 route passes through 60 km of completely uninhabited lava desert. The mountain slopes are rich in obsidian and pumice from the 1875 eruption that forced thousands to emigrate to North America.",
     tags: ['massif', 'volcanic', 'Askja', 'obsidian', 'remote', 'lava-desert'],
-    thumbnail: 'https://images.pexels.com/photos/33310385/pexels-photo-33310385.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
+    thumbnail: 'https://images.pexels.com/photos/30100616/pexels-photo-30100616.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
     difficulty: 'extreme',
     distance: 390,
   },
