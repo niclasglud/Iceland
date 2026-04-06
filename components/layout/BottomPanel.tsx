@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { SunInfo, MoonInfo, WeatherData, HourlyPoint } from '@/types'
 import {
   getSunSliderPercent,
@@ -53,6 +54,8 @@ export default function BottomPanel({
   onDaySelect,
   selectedDayIndex,
 }: BottomPanelProps) {
+  const [collapsed, setCollapsed] = useState(false)
+
   // Slider 0–100 value
   const sliderValue = getSunSliderPercent(scrubTime, sunInfo)
 
@@ -99,12 +102,12 @@ export default function BottomPanel({
         borderTop: '1px solid rgba(255,255,255,0.08)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+        paddingBottom: collapsed ? 'env(safe-area-inset-bottom, 4px)' : 'env(safe-area-inset-bottom, 8px)',
         position: 'relative',
       }}
     >
       {/* ── Hourly Modal (slides up above panel) ── */}
-      {selectedDayIndex != null && selectedDayIndex >= 0 && weather.hourlyByDay?.[selectedDayIndex] && (
+      {!collapsed && selectedDayIndex != null && selectedDayIndex >= 0 && weather.hourlyByDay?.[selectedDayIndex] && (
         <div style={{
           position: 'absolute', bottom: '100%', left: 0, right: 0,
           background: 'rgba(10,11,14,0.98)',
@@ -130,209 +133,253 @@ export default function BottomPanel({
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-2 px-3 pt-2.5 pb-1">
 
-        {/* ── Row 1: Day/Night toggle  +  Sun position ── */}
-        <div className="flex items-center justify-between">
-          {/* Toggle */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => isNightMode && onNightModeToggle()}
-              className="px-3 rounded-full text-xs font-semibold transition-all duration-150"
-              style={{
-                height: '26px',
-                background: !isNightMode ? '#f5a623' : 'rgba(255,255,255,0.08)',
-                color:      !isNightMode ? '#0a0b0e' : '#8a8f9e',
-              }}
-            >
-              Day
-            </button>
-            <button
-              onClick={() => !isNightMode && onNightModeToggle()}
-              className="px-3 rounded-full text-xs font-semibold transition-all duration-150"
-              style={{
-                height: '26px',
-                background: isNightMode ? '#4a9eff' : 'rgba(255,255,255,0.08)',
-                color:      isNightMode ? '#0a0b0e' : '#8a8f9e',
-              }}
-            >
-              Night
-            </button>
-          </div>
-
-          {/* Sun position */}
-          <div className="flex items-center gap-3 text-xs" style={{ color: '#8a8f9e' }}>
-            <span>
-              Sun{' '}
-              <span className="font-semibold text-white">
-                {Math.round(sunInfo.altitude)}°
-              </span>{' '}
-              alt
-            </span>
-            <span>
-              Az{' '}
-              <span className="font-semibold text-white">
-                {Math.round(sunInfo.azimuth)}°
+      {/* ── Collapse toggle strip ── */}
+      <button
+        onClick={() => setCollapsed(v => !v)}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: collapsed ? '8px 12px' : '4px 12px 0',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          gap: 8,
+        }}
+        aria-label={collapsed ? 'Expand weather panel' : 'Collapse weather panel'}
+      >
+        {/* Summary row visible when collapsed or as label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
+            {weather.temperature > 0 ? '+' : ''}{weather.temperature}°C
+          </span>
+          <span style={{ fontSize: 11, color: '#8a8f9e' }}>{weather.condition}</span>
+          {collapsed && (
+            <>
+              <span style={{ fontSize: 11, color: '#8a8f9e' }}>· 🌬 {weather.windSpeed} km/h</span>
+              <span style={{ fontSize: 10, color: '#6b7280', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 99 }}>
+                {currentPeriod}
               </span>
-            </span>
-            <span
-              className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#8a8f9e' }}
-            >
-              {currentPeriod}
-            </span>
-          </div>
+              <span style={{ fontSize: 11, color: '#8a8f9e' }}>
+                ☀ {Math.round(sunInfo.altitude)}°
+              </span>
+            </>
+          )}
         </div>
+        {/* Chevron */}
+        <span style={{ color: '#8a8f9e', fontSize: 12, flexShrink: 0, transition: 'transform 0.2s', transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          ▼
+        </span>
+      </button>
 
-        {/* ── Row 2: Sun scrub slider ── */}
-        <div className="flex flex-col gap-1.5">
-          {/* Track + thumb */}
-          <div className="relative flex items-center" style={{ height: '18px' }}>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={0.1}
-              value={sliderValue}
-              onChange={handleSliderChange}
-              aria-label="Time of day scrubber"
-              className="w-full appearance-none cursor-pointer"
-              style={{
-                height: '4px',
-                borderRadius: '9999px',
-                background: `linear-gradient(to right, #f5a623 ${sliderValue}%, rgba(255,255,255,0.15) ${sliderValue}%)`,
-                accentColor: '#f5a623',
-                outline: 'none',
-              }}
-            />
-          </div>
+      {/* ── Expanded content ── */}
+      {!collapsed && (
+        <div className="flex flex-col gap-2 px-3 pt-1.5 pb-1">
 
-          {/* 5 time labels: Dawn | Sunrise | Noon | Sunset | Night */}
-          <div className="flex justify-between">
-            {sliderLabels.map((item) => (
-              <div key={item.label} className="flex flex-col items-center" style={{ width: '20%' }}>
-                <span
-                  className="text-[10px] font-medium leading-tight"
-                  style={{ color: item.isOrange ? '#f5a623' : '#8a8f9e' }}
-                >
-                  {item.label}
+          {/* ── Row 1: Day/Night toggle  +  Sun position ── */}
+          <div className="flex items-center justify-between">
+            {/* Toggle */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={(e) => { e.stopPropagation(); isNightMode && onNightModeToggle() }}
+                className="px-3 rounded-full text-xs font-semibold transition-all duration-150"
+                style={{
+                  height: '26px',
+                  background: !isNightMode ? '#f5a623' : 'rgba(255,255,255,0.08)',
+                  color:      !isNightMode ? '#0a0b0e' : '#8a8f9e',
+                }}
+              >
+                Day
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); !isNightMode && onNightModeToggle() }}
+                className="px-3 rounded-full text-xs font-semibold transition-all duration-150"
+                style={{
+                  height: '26px',
+                  background: isNightMode ? '#4a9eff' : 'rgba(255,255,255,0.08)',
+                  color:      isNightMode ? '#0a0b0e' : '#8a8f9e',
+                }}
+              >
+                Night
+              </button>
+            </div>
+
+            {/* Sun position */}
+            <div className="flex items-center gap-3 text-xs" style={{ color: '#8a8f9e' }}>
+              <span>
+                Sun{' '}
+                <span className="font-semibold text-white">
+                  {Math.round(sunInfo.altitude)}°
+                </span>{' '}
+                alt
+              </span>
+              <span>
+                Az{' '}
+                <span className="font-semibold text-white">
+                  {Math.round(sunInfo.azimuth)}°
                 </span>
-                <span
-                  className="text-[10px] leading-tight tabular-nums"
-                  style={{ color: item.isOrange ? '#f5a623' : '#6b7280' }}
-                >
-                  {item.time}
-                </span>
-              </div>
-            ))}
+              </span>
+              <span
+                className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                style={{ background: 'rgba(255,255,255,0.06)', color: '#8a8f9e' }}
+              >
+                {currentPeriod}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* ── Row 3: Moon phase ── */}
-        <div
-          className="flex items-center gap-2 px-2.5 py-1 rounded-lg"
-          style={{ background: 'rgba(255,255,255,0.04)' }}
-        >
-          <span className="text-base leading-none">{moonEmoji}</span>
-          <span className="text-xs font-medium text-white">{moonInfo.phaseName}</span>
-          <span className="text-xs" style={{ color: '#8a8f9e' }}>
-            {moonInfo.illumination}% lit
-          </span>
-          <div className="ml-auto flex items-center gap-2 text-xs" style={{ color: '#8a8f9e' }}>
-            <span>↑ {moonRise}</span>
-            <span>↓ {moonSet}</span>
-          </div>
-        </div>
+          {/* ── Row 2: Sun scrub slider ── */}
+          <div className="flex flex-col gap-1.5">
+            {/* Track + thumb */}
+            <div className="relative flex items-center" style={{ height: '18px' }}>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={0.1}
+                value={sliderValue}
+                onChange={handleSliderChange}
+                aria-label="Time of day scrubber"
+                className="w-full appearance-none cursor-pointer"
+                style={{
+                  height: '4px',
+                  borderRadius: '9999px',
+                  background: `linear-gradient(to right, #f5a623 ${sliderValue}%, rgba(255,255,255,0.15) ${sliderValue}%)`,
+                  accentColor: '#f5a623',
+                  outline: 'none',
+                }}
+              />
+            </div>
 
-        {/* ── Row 4: Current weather ── */}
-        <div
-          className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg"
-          style={{ background: 'rgba(255,255,255,0.04)' }}
-        >
-          <span className="text-xl font-bold text-white leading-none">
-            {weather.temperature > 0 ? weather.temperature : weather.temperature}°C
-          </span>
-          <span className="text-xs font-medium" style={{ color: '#8a8f9e' }}>
-            {weather.condition}
-          </span>
-          <span className="text-xs" style={{ color: '#8a8f9e' }}>
-            🌬 {weather.windSpeed}&nbsp;km/h
-          </span>
-          <span
-            className="ml-auto text-xs font-semibold truncate max-w-[80px]"
-            style={{ color: '#4a9eff' }}
-          >
-            {weather.location ?? 'Iceland'}
-          </span>
-        </div>
-
-        {/* ── Row 5: 7-day forecast — horizontal scroll ── */}
-        <div
-          className="overflow-x-auto -mx-3 px-3 pb-1"
-          style={{ scrollbarWidth: 'none' }}
-        >
-          <div className="flex gap-2" style={{ width: 'max-content' }}>
-            {weather.forecast.map((day, idx) => {
-              const isToday     = idx === 0
-              const isSelected  = selectedDayIndex === idx
-              const qColor      = getQualityColor(day.quality)
-              const qBg         = qualityBgColor(day.quality)
-              return (
-                <div
-                  key={`${day.day}-${idx}`}
-                  className="flex flex-col items-center gap-0.5 px-2 pt-1.5 pb-1.5 rounded-xl shrink-0"
-                  onClick={() => onDaySelect(isSelected ? -1 : idx)}
-                  style={{
-                    background: isSelected ? 'rgba(245,166,35,0.12)' : 'rgba(18,20,28,0.95)',
-                    border: isSelected
-                      ? '1px solid #f5a623'
-                      : isToday
-                      ? '1px solid #f5a623'
-                      : '1px solid rgba(255,255,255,0.08)',
-                    minWidth: '58px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {/* Day name */}
+            {/* 5 time labels: Dawn | Sunrise | Noon | Sunset | Night */}
+            <div className="flex justify-between">
+              {sliderLabels.map((item) => (
+                <div key={item.label} className="flex flex-col items-center" style={{ width: '20%' }}>
                   <span
-                    className="text-[10px] font-bold leading-tight"
-                    style={{ color: isToday ? '#f5a623' : '#8a8f9e' }}
+                    className="text-[10px] font-medium leading-tight"
+                    style={{ color: item.isOrange ? '#f5a623' : '#8a8f9e' }}
                   >
-                    {day.day}
+                    {item.label}
                   </span>
-
-                  {/* Weather icon */}
-                  <span className="text-[18px] leading-tight">{day.icon}</span>
-
-                  {/* High / Low temps */}
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[11px] font-bold text-white">
-                      {day.high > 0 ? '+' : ''}{day.high}°
-                    </span>
-                    <span className="text-[10px]" style={{ color: '#8a8f9e' }}>
-                      {day.low}°
-                    </span>
-                  </div>
-
-                  {/* Wind */}
-                  <span className="text-[9px] leading-tight" style={{ color: '#8a8f9e' }}>
-                    {day.windSpeed}&nbsp;km/h
-                  </span>
-
-                  {/* Quality badge */}
                   <span
-                    className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
-                    style={{ color: qColor, background: qBg }}
+                    className="text-[10px] leading-tight tabular-nums"
+                    style={{ color: item.isOrange ? '#f5a623' : '#6b7280' }}
                   >
-                    {qualityLabel(day.quality)}
+                    {item.time}
                   </span>
                 </div>
-              )
-            })}
+              ))}
+            </div>
           </div>
-        </div>
 
-      </div>
+          {/* ── Row 3: Moon phase ── */}
+          <div
+            className="flex items-center gap-2 px-2.5 py-1 rounded-lg"
+            style={{ background: 'rgba(255,255,255,0.04)' }}
+          >
+            <span className="text-base leading-none">{moonEmoji}</span>
+            <span className="text-xs font-medium text-white">{moonInfo.phaseName}</span>
+            <span className="text-xs" style={{ color: '#8a8f9e' }}>
+              {moonInfo.illumination}% lit
+            </span>
+            <div className="ml-auto flex items-center gap-2 text-xs" style={{ color: '#8a8f9e' }}>
+              <span>↑ {moonRise}</span>
+              <span>↓ {moonSet}</span>
+            </div>
+          </div>
+
+          {/* ── Row 4: Current weather ── */}
+          <div
+            className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg"
+            style={{ background: 'rgba(255,255,255,0.04)' }}
+          >
+            <span className="text-xl font-bold text-white leading-none">
+              {weather.temperature > 0 ? weather.temperature : weather.temperature}°C
+            </span>
+            <span className="text-xs font-medium" style={{ color: '#8a8f9e' }}>
+              {weather.condition}
+            </span>
+            <span className="text-xs" style={{ color: '#8a8f9e' }}>
+              🌬 {weather.windSpeed}&nbsp;km/h
+            </span>
+            <span
+              className="ml-auto text-xs font-semibold truncate max-w-[80px]"
+              style={{ color: '#4a9eff' }}
+            >
+              {weather.location ?? 'Iceland'}
+            </span>
+          </div>
+
+          {/* ── Row 5: 7-day forecast — horizontal scroll ── */}
+          <div
+            className="overflow-x-auto -mx-3 px-3 pb-1"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            <div className="flex gap-2" style={{ width: 'max-content' }}>
+              {weather.forecast.map((day, idx) => {
+                const isToday     = idx === 0
+                const isSelected  = selectedDayIndex === idx
+                const qColor      = getQualityColor(day.quality)
+                const qBg         = qualityBgColor(day.quality)
+                return (
+                  <div
+                    key={`${day.day}-${idx}`}
+                    className="flex flex-col items-center gap-0.5 px-2 pt-1.5 pb-1.5 rounded-xl shrink-0"
+                    onClick={() => onDaySelect(isSelected ? -1 : idx)}
+                    style={{
+                      background: isSelected ? 'rgba(245,166,35,0.12)' : 'rgba(18,20,28,0.95)',
+                      border: isSelected
+                        ? '1px solid #f5a623'
+                        : isToday
+                        ? '1px solid #f5a623'
+                        : '1px solid rgba(255,255,255,0.08)',
+                      minWidth: '58px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {/* Day name */}
+                    <span
+                      className="text-[10px] font-bold leading-tight"
+                      style={{ color: isToday ? '#f5a623' : '#8a8f9e' }}
+                    >
+                      {day.day}
+                    </span>
+
+                    {/* Weather icon */}
+                    <span className="text-[18px] leading-tight">{day.icon}</span>
+
+                    {/* High / Low temps */}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[11px] font-bold text-white">
+                        {day.high > 0 ? '+' : ''}{day.high}°
+                      </span>
+                      <span className="text-[10px]" style={{ color: '#8a8f9e' }}>
+                        {day.low}°
+                      </span>
+                    </div>
+
+                    {/* Wind */}
+                    <span className="text-[9px] leading-tight" style={{ color: '#8a8f9e' }}>
+                      {day.windSpeed}&nbsp;km/h
+                    </span>
+
+                    {/* Quality badge */}
+                    <span
+                      className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+                      style={{ color: qColor, background: qBg }}
+                    >
+                      {qualityLabel(day.quality)}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+        </div>
+      )}
 
       {/* Hide webkit scrollbars on forecast row */}
       <style>{`
