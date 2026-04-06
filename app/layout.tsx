@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import OfflineBanner from '@/components/layout/OfflineBanner'
 
 export const metadata: Metadata = {
   title: 'Iceland Explorer — Spots, 3D Map & Northern Lights',
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css" />
       </head>
       <body className="overflow-hidden bg-[#0a0b0e] text-white antialiased">
+        <OfflineBanner />
         {children}
       </body>
     </html>
