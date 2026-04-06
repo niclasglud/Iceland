@@ -34,7 +34,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Húsavík', 'Reykjavík', 'Faxaflói Bay'],
     description: 'The most commonly seen whale in Iceland. Smaller and faster than humpbacks, minkes often surface close to tour boats for memorable encounters.',
     tips: 'Reykjavík whale watching tours from the Old Harbour depart year-round, with highest success rates from June to September.',
-    photo: 'https://images.pexels.com/photos/22763975/pexels-photo-22763975.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/4338107/pexels-photo-4338107.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'orca',
@@ -89,7 +89,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Nationwide', 'Jökulsárlón', 'Þingvellir', 'Mývatn'],
     description: 'The world\'s longest migration — from Arctic to Antarctic and back (70,000 km). These feisty birds dive-bomb anyone near their nests. Carry a stick over your head.',
     tips: 'Common everywhere in summer. Jökulsárlón glacier lagoon has large colonies nesting on the icebergs. They will actually hit you — respect the warning dive.',
-    photo: 'https://images.pexels.com/photos/11571637/pexels-photo-11571637.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/14487514/pexels-photo-14487514.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'northern-lights',

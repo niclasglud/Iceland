@@ -501,7 +501,7 @@ export const locations: Location[] = [
     auroraRating: 3,
     description: "The jewel of the Westfjords — a series of seven cascading waterfalls culminating in a magnificent 100-metre bridal-veil fan that spreads wider as it falls, creating a wedding-dress silhouette. The hike up past all seven falls takes about 40 minutes, with stunning fjord views opening up with every step. Remote location means you may have this extraordinary waterfall almost entirely to yourself.",
     tags: ['waterfall', 'westfjords', 'bridal-veil', 'seven-falls', 'remote', 'fjord'],
-    thumbnail: 'https://images.pexels.com/photos/18529073/pexels-photo-18529073.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
+    thumbnail: 'https://images.pexels.com/photos/10586056/pexels-photo-10586056.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
     difficulty: 'moderate',
     distance: 450,
     hikingInfo: '40-minute hike up past all seven cascades. Good path throughout.',
