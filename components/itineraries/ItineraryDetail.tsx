@@ -138,17 +138,18 @@ export default function ItineraryDetail({ itinerary, onBack }: ItineraryDetailPr
   return (
     <div
       style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
         backgroundColor: '#0a0b0e',
-        minHeight: '100%',
         fontFamily: 'system-ui, -apple-system, sans-serif',
+        overflow: 'hidden',
       }}
     >
-      {/* Sticky header */}
+      {/* Header — always visible, never scrolls */}
       <div
         style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
+          flexShrink: 0,
           backgroundColor: 'rgba(10,11,14,0.97)',
           borderBottom: '1px solid rgba(255,255,255,0.07)',
           backdropFilter: 'blur(12px)',
@@ -158,7 +159,6 @@ export default function ItineraryDetail({ itinerary, onBack }: ItineraryDetailPr
           gap: 12,
           padding: '0 16px',
           height: 56,
-          flexShrink: 0,
         }}
       >
         <button
@@ -183,6 +183,9 @@ export default function ItineraryDetail({ itinerary, onBack }: ItineraryDetailPr
           {itinerary.name}
         </span>
       </div>
+
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
 
       {/* Hero */}
       <div style={{ position: 'relative', height: 190, overflow: 'hidden' }}>
@@ -347,6 +350,8 @@ export default function ItineraryDetail({ itinerary, onBack }: ItineraryDetailPr
           </p>
         </div>
       </div>
+
+      </div>{/* end scrollable content */}
     </div>
   )
 }

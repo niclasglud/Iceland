@@ -277,14 +277,16 @@ export default function HomePage() {
 
         {/* Itineraries Panel */}
         {activeTab === 'itineraries' && (
-          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex-1 overflow-hidden flex flex-col">
             {selectedItineraryId ? (() => {
               const it = itineraries.find(i => i.id === selectedItineraryId)
               return it ? (
                 <ItineraryDetail itinerary={it} onBack={() => setSelectedItineraryId(null)} />
               ) : null
             })() : (
-              <ItinerariesList onSelect={(id) => setSelectedItineraryId(id)} />
+              <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                <ItinerariesList onSelect={(id) => setSelectedItineraryId(id)} />
+              </div>
             )}
           </div>
         )}

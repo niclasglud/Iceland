@@ -37,26 +37,27 @@ function computeProbability(kp: number, cloudCover: number): number {
   return Math.round(base * (1 - cloudCover / 100))
 }
 
+function isNightHour(isoTime: string): boolean {
+  // Iceland is UTC+0 year-round — night = 21:00–03:59
+  const h = new Date(isoTime).getUTCHours()
+  return h >= 21 || h <= 3
+}
+
 function findBestViewingTime(forecast: KpForecastEntry[]): string | undefined {
   if (forecast.length === 0) return undefined
-  const nightEntries = forecast.filter((e) => {
-    // Filter by Iceland local time (UTC+0 year-round, same as UTC)
-    const h = parseInt(
-      new Date(e.time).toLocaleString('en-GB', {
-        hour: '2-digit',
-        hour12: false,
-        timeZone: 'Atlantic/Reykjavik',
-      })
-    )
-    return (h >= 21 || h <= 3) && e.kp >= 3
-  })
-  const pool = nightEntries.length > 0 ? nightEntries : forecast
-  const peak = pool.reduce((best, e) => (e.kp > best.kp ? e : best), pool[0])
+  // Only consider future entries during night hours
+  const now = Date.now()
+  const nightEntries = forecast.filter(
+    (e) => new Date(e.time).getTime() >= now && isNightHour(e.time)
+  )
+  // No upcoming night window in forecast — don't show a daytime time
+  if (nightEntries.length === 0) return undefined
+  const peak = nightEntries.reduce((best, e) => (e.kp > best.kp ? e : best), nightEntries[0])
   return new Date(peak.time).toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-    timeZone: 'Atlantic/Reykjavik',
+    timeZone: 'UTC', // Iceland = UTC+0
   })
 }
 
