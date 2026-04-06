@@ -119,7 +119,7 @@ export interface MoonInfo {
   set?: Date
 }
 
-export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather'
+export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather' | 'itineraries'
 
 export interface RouteStep {
   instruction: string

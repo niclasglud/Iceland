@@ -14,6 +14,9 @@ import ToolsDrawer from '@/components/layout/ToolsDrawer'
 import SpotsList from '@/components/spots/SpotsList'
 import SpotDetail from '@/components/spots/SpotDetail'
 import AuroraBar from '@/components/aurora/AuroraBar'
+import ItinerariesList from '@/components/itineraries/ItinerariesList'
+import ItineraryDetail from '@/components/itineraries/ItineraryDetail'
+import { itineraries } from '@/data/itineraries'
 
 // Dynamically import Mapbox component (no SSR)
 const IcelandMap = dynamic(() => import('@/components/map/IcelandMap'), {
@@ -67,6 +70,7 @@ export default function HomePage() {
   )
   const [auroraData, setAuroraData] = useState<AuroraData>(getMockAuroraData())
   const [weather, setWeather] = useState<WeatherData>(getMockWeatherData())
+  const [selectedItineraryId, setSelectedItineraryId] = useState<string | null>(null)
 
   const bestSpotsToday = useMemo(
     () => getBestSpotsToday(locations, weather, sunInfo, auroraData, 5),
@@ -271,6 +275,13 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Itineraries Panel */}
+        {activeTab === 'itineraries' && !selectedItineraryId && (
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+            <ItinerariesList onSelect={(id) => setSelectedItineraryId(id)} />
+          </div>
+        )}
+
         {/* Aurora Panel */}
         {activeTab === 'aurora' && (
           <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
@@ -315,6 +326,17 @@ export default function HomePage() {
           selectedDayIndex={selectedWeatherDay}
         />
       )}
+
+      {/* Full-screen itinerary detail overlay */}
+      {selectedItineraryId && (() => {
+        const it = itineraries.find(i => i.id === selectedItineraryId)
+        return it ? (
+          <ItineraryDetail
+            itinerary={it}
+            onBack={() => setSelectedItineraryId(null)}
+          />
+        ) : null
+      })()}
 
       {/* Full-screen spot detail overlay */}
       {detailLocation && (
