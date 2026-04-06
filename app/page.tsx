@@ -36,6 +36,11 @@ const IcelandMap = dynamic(() => import('@/components/map/IcelandMap'), {
   ),
 })
 
+const PlacesTab = dynamic(() => import('@/components/places/PlacesTab'), {
+  ssr: false,
+  loading: () => <div className="flex-1 bg-[#0a0b0e]" />,
+})
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('map')
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
@@ -393,6 +398,13 @@ export default function HomePage() {
               onStopsChange={setPlanStops}
               onSwitchToSpots={() => setActiveTab('spots')}
             />
+          </div>
+        )}
+
+        {/* Places Panel */}
+        {activeTab === 'places' && (
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <PlacesTab />
           </div>
         )}
       </div>
