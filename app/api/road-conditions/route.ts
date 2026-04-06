@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { RoadWarning } from '@/types'
 
-// IMO (Icelandic Met Office) weather warnings RSS/JSON
-// apis.is aggregates several Icelandic government data sources
-const IMO_WARNINGS_URL = 'https://en.vedur.is/weather/warnings/'
-
 // road.is (Vegagerðin) — Iceland Road Administration
 const ROAD_CONDITIONS_URL = 'https://apis.is/road'
 
