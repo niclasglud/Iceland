@@ -1,0 +1,562 @@
+[
+  {
+    "id": "skogafoss",
+    "name": "Skógafoss",
+    "type": "waterfall",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/29018995/pexels-photo-29018995.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "seljalandsfoss",
+    "name": "Seljalandsfoss",
+    "type": "waterfall",
+    "region": "ring-road",
+    "thumbnail": "https://images.pexels.com/photos/19267246/pexels-photo-19267246.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "gljufrabui",
+    "name": "Gljúfrabúi",
+    "type": "waterfall",
+    "region": "ring-road",
+    "thumbnail": "https://images.pexels.com/photos/18273215/pexels-photo-18273215.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "jokulsarlon",
+    "name": "Jökulsárlón Glacier Lagoon",
+    "type": "lake",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/20582185/pexels-photo-20582185.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "diamond-beach",
+    "name": "Diamond Beach",
+    "type": "beach",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/4087258/pexels-photo-4087258.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "reynisfjara",
+    "name": "Reynisfjara Black Sand Beach",
+    "type": "beach",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/31974260/pexels-photo-31974260.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "geysir",
+    "name": "Geysir & Strokkur",
+    "type": "geothermal",
+    "region": "ring-road",
+    "thumbnail": "https://images.pexels.com/photos/19499959/pexels-photo-19499959.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "gullfoss",
+    "name": "Gullfoss",
+    "type": "waterfall",
+    "region": "ring-road",
+    "thumbnail": "https://images.pexels.com/photos/19500069/pexels-photo-19500069.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "thingvellir",
+    "name": "Þingvellir National Park",
+    "type": "valley",
+    "region": "ring-road",
+    "thumbnail": "https://images.pexels.com/photos/19499970/pexels-photo-19499970.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "kirkjufell",
+    "name": "Kirkjufell",
+    "type": "mountain",
+    "region": "snaefellsnes",
+    "thumbnail": "https://images.pexels.com/photos/2454681/pexels-photo-2454681.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "kirkjufellsfoss",
+    "name": "Kirkjufellsfoss",
+    "type": "waterfall",
+    "region": "snaefellsnes",
+    "thumbnail": "https://images.pexels.com/photos/29264035/pexels-photo-29264035.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "svartifoss",
+    "name": "Svartifoss",
+    "type": "waterfall",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/20582091/pexels-photo-20582091.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "dettifoss",
+    "name": "Dettifoss",
+    "type": "waterfall",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/1460174/pexels-photo-1460174.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "godafoss",
+    "name": "Goðafoss",
+    "type": "waterfall",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/16251253/pexels-photo-16251253.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "myvatn",
+    "name": "Mývatn Lake",
+    "type": "lake",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/16170451/pexels-photo-16170451.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "hverfjall",
+    "name": "Hverfjall Crater",
+    "type": "volcano",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/6731715/pexels-photo-6731715.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "grjotagja",
+    "name": "Grjótagjá Cave",
+    "type": "hot-spring",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/10141781/pexels-photo-10141781.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "namaskard",
+    "name": "Námaskarð (Hverir)",
+    "type": "geothermal",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/6186487/pexels-photo-6186487.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "vatnajokull",
+    "name": "Vatnajökull Glacier",
+    "type": "glacier",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/10586442/pexels-photo-10586442.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "snaefellsjokull",
+    "name": "Snæfellsjökull",
+    "type": "volcano",
+    "region": "snaefellsnes",
+    "thumbnail": "https://images.pexels.com/photos/16550148/pexels-photo-16550148.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "vik",
+    "name": "Vík í Mýrdal",
+    "type": "beach",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/20871541/pexels-photo-20871541.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "vestrahorn",
+    "name": "Vestrahorn",
+    "type": "mountain",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/32151713/pexels-photo-32151713.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "skaftafell",
+    "name": "Skaftafell",
+    "type": "valley",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/17737292/pexels-photo-17737292.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "blue-lagoon",
+    "name": "Blue Lagoon",
+    "type": "hot-spring",
+    "region": "reykjanes",
+    "thumbnail": "https://images.pexels.com/photos/20955080/pexels-photo-20955080.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "fjadrargljufur",
+    "name": "Fjaðrárgljúfur Canyon",
+    "type": "canyon",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/9532584/pexels-photo-9532584.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "krafla",
+    "name": "Krafla Volcano",
+    "type": "volcano",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/6523286/pexels-photo-6523286.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "leirhnjukur",
+    "name": "Leirhnjúkur Lava Field",
+    "type": "lava",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/29909021/pexels-photo-29909021.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "dynjandi",
+    "name": "Dynjandi Waterfall",
+    "type": "waterfall",
+    "region": "westfjords",
+    "thumbnail": "https://images.pexels.com/photos/10586056/pexels-photo-10586056.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "husavik",
+    "name": "Húsavík",
+    "type": "valley",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/19742780/pexels-photo-19742780.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "hvitserkur",
+    "name": "Hvítserkur Sea Stack",
+    "type": "mountain",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/1686024/pexels-photo-1686024.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "studlagil",
+    "name": "Stuðlagil Canyon",
+    "type": "canyon",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/19433891/pexels-photo-19433891.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "storurd",
+    "name": "Stórurð (The Giant Boulders)",
+    "type": "valley",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/17929956/pexels-photo-17929956.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "aldeyjarfoss",
+    "name": "Aldeyjarfoss",
+    "type": "waterfall",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/18272640/pexels-photo-18272640.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "raudasandur",
+    "name": "Rauðasandur Red Sand Beach",
+    "type": "beach",
+    "region": "westfjords",
+    "thumbnail": "https://images.pexels.com/photos/30637692/pexels-photo-30637692.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "gjain",
+    "name": "Gjáin",
+    "type": "valley",
+    "region": "ring-road",
+    "thumbnail": "https://images.pexels.com/photos/20458518/pexels-photo-20458518.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "raudfeldsgja",
+    "name": "Rauðfeldsgjá Gorge",
+    "type": "canyon",
+    "region": "snaefellsnes",
+    "thumbnail": "https://images.pexels.com/photos/2335126/pexels-photo-2335126.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "bjarnarfoss",
+    "name": "Bjarnarfoss",
+    "type": "waterfall",
+    "region": "snaefellsnes",
+    "thumbnail": "https://images.pexels.com/photos/6235792/pexels-photo-6235792.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "fosslaug",
+    "name": "Fosslaug Hot Spring",
+    "type": "hot-spring",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/17214262/pexels-photo-17214262.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "stong",
+    "name": "Stöng Viking Ruins",
+    "type": "ruins",
+    "region": "south",
+    "thumbnail": "https://images.pexels.com/photos/28940324/pexels-photo-28940324.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "holmatungur",
+    "name": "Hólmatungur",
+    "type": "valley",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/10589819/pexels-photo-10589819.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "hljodaklettar",
+    "name": "Hljóðaklettar Echo Rocks",
+    "type": "canyon",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/258118/pexels-photo-258118.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "rjukandafoss",
+    "name": "Rjúkandafoss",
+    "type": "waterfall",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/26700326/pexels-photo-26700326.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "skutustadagigar",
+    "name": "Skútustaðagígar Pseudo-Craters",
+    "type": "volcano",
+    "region": "north",
+    "thumbnail": "https://images.pexels.com/photos/5384149/pexels-photo-5384149.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "gatklettur",
+    "name": "Gatklettur Arch Rock",
+    "type": "beach",
+    "region": "snaefellsnes",
+    "thumbnail": "https://images.pexels.com/photos/4457408/pexels-photo-4457408.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "haifoss",
+    "name": "Háifoss",
+    "type": "waterfall",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/16948673/pexels-photo-16948673.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "landmannalaugar",
+    "name": "Landmannalaugar",
+    "type": "geothermal",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/29018986/pexels-photo-29018986.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "kerlingarfjoll",
+    "name": "Kerlingarfjöll",
+    "type": "geothermal",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/32096257/pexels-photo-32096257.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "askja",
+    "name": "Askja Caldera",
+    "type": "volcano",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/360912/pexels-photo-360912.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "viti-askja",
+    "name": "Víti Crater Lake",
+    "type": "lake",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/27244371/pexels-photo-27244371.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "oskjuvatn",
+    "name": "Öskjuvatn Lake",
+    "type": "lake",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/5175651/pexels-photo-5175651.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "herdubreid",
+    "name": "Herðubreið — Queen of Mountains",
+    "type": "mountain",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/1304608/pexels-photo-1304608.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "hveravellir",
+    "name": "Hveravellir Geothermal Oasis",
+    "type": "hot-spring",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/28304723/pexels-photo-28304723.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "thorsmork",
+    "name": "Þórsmörk Valley",
+    "type": "valley",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/19499968/pexels-photo-19499968.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "emstrur",
+    "name": "Emstrur / Botnar",
+    "type": "valley",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/32154420/pexels-photo-32154420.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "hrafntinnusker",
+    "name": "Hrafntinnusker Obsidian Fields",
+    "type": "mountain",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/17237081/pexels-photo-17237081.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "veidivötn",
+    "name": "Veiðivötn Crater Lakes",
+    "type": "lake",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/2229887/pexels-photo-2229887.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "lakagigar",
+    "name": "Lakagígar (Laki Craters)",
+    "type": "volcano",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/27244377/pexels-photo-27244377.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "holuhraun",
+    "name": "Holuhraun Lava Field",
+    "type": "lava",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/32577924/pexels-photo-32577924.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "ofarufoss",
+    "name": "Ófærufoss (Eldgjá)",
+    "type": "waterfall",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/18273135/pexels-photo-18273135.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "malifell",
+    "name": "Mælifell Volcano",
+    "type": "volcano",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/27244376/pexels-photo-27244376.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "blahylur",
+    "name": "Bláhylur Blue Crater Lake",
+    "type": "lake",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/19613737/pexels-photo-19613737.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "sigoldugljufur",
+    "name": "Sigöldugljúfur (Valley of Tears)",
+    "type": "canyon",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/34947145/pexels-photo-34947145.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "storasula",
+    "name": "Stórasúla Mountain",
+    "type": "mountain",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/19794949/pexels-photo-19794949.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "hvanngil",
+    "name": "Hvanngil Hut",
+    "type": "valley",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/4339497/pexels-photo-4339497.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "alftavatn",
+    "name": "Álftavatn (Swan Lake)",
+    "type": "lake",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/237260/pexels-photo-237260.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "dyngjufjoll",
+    "name": "Dyngjufjöll Mountains",
+    "type": "mountain",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/1480807/pexels-photo-1480807.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "jokuldalur",
+    "name": "Jökuldalur Glacier Valley",
+    "type": "valley",
+    "region": "east",
+    "thumbnail": "https://images.pexels.com/photos/2355447/pexels-photo-2355447.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "krakatindur",
+    "name": "Krakatindur Obsidian Peak",
+    "type": "mountain",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/3601425/pexels-photo-3601425.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "nyidalur",
+    "name": "Nýidalur Highland Oasis",
+    "type": "valley",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/2736493/pexels-photo-2736493.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  },
+  {
+    "id": "thjorsarver",
+    "name": "Þjórsárver Wetlands",
+    "type": "valley",
+    "region": "highlands",
+    "thumbnail": "https://images.pexels.com/photos/1518484/pexels-photo-1518484.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
+    "error": "fetch failed"
+  }
+]
