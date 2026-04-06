@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Deep night sky gradient -->
+    <radialGradient id="sky" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#0d1929"/>
+      <stop offset="100%" stop-color="#060810"/>
+    </radialGradient>
+
+    <!-- Aurora curtain gradient — green to teal to violet -->
+    <linearGradient id="aurora1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#00ff9f" stop-opacity="0"/>
+      <stop offset="35%"  stop-color="#00e5b0" stop-opacity="0.85"/>
+      <stop offset="60%"  stop-color="#00bcd4" stop-opacity="0.7"/>
+      <stop offset="85%"  stop-color="#7c3aed" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="aurora2" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%"   stop-color="#00ff9f" stop-opacity="0"/>
+      <stop offset="40%"  stop-color="#4ade80" stop-opacity="0.6"/>
+      <stop offset="70%"  stop-color="#22d3ee" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Ground glow -->
+    <radialGradient id="glow" cx="50%" cy="100%" r="60%">
+      <stop offset="0%"   stop-color="#00ff9f" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#00ff9f" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Lens glass gradient -->
+    <radialGradient id="lens" cx="35%" cy="30%" r="70%">
+      <stop offset="0%"   stop-color="#60a5fa" stop-opacity="0.95"/>
+      <stop offset="40%"  stop-color="#1e40af" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0c1445" stop-opacity="1"/>
+    </radialGradient>
+
+    <!-- Lens highlight -->
+    <radialGradient id="lensHighlight" cx="30%" cy="28%" r="40%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Aurora inner reflection in lens -->
+    <radialGradient id="lensAurora" cx="60%" cy="65%" r="50%">
+      <stop offset="0%"   stop-color="#00ff9f" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#00ff9f" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Mountain gradient -->
+    <linearGradient id="mountains" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#1a2a1a"/>
+      <stop offset="100%" stop-color="#0a0f0a"/>
+    </linearGradient>
+
+    <!-- Rounded rect clip for whole icon -->
+    <clipPath id="roundRect">
+      <rect width="512" height="512" rx="112" ry="112"/>
+    </clipPath>
+
+    <!-- Clip aurora to upper portion -->
+    <clipPath id="upperHalf">
+      <rect x="0" y="0" width="512" height="340"/>
+    </clipPath>
+
+    <!-- Camera body shape clip -->
+    <clipPath id="cameraBody">
+      <rect x="88" y="188" width="336" height="230" rx="32" ry="32"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#roundRect)">
+    <!-- Sky background -->
+    <rect width="512" height="512" fill="url(#sky)"/>
+
+    <!-- Stars — hand-placed for natural scatter -->
+    <g fill="white">
+      <circle cx="42"  cy="38"  r="1.2" opacity="0.9"/>
+      <circle cx="78"  cy="22"  r="0.9" opacity="0.7"/>
+      <circle cx="115" cy="55"  r="1.4" opacity="0.8"/>
+      <circle cx="158" cy="18"  r="1.0" opacity="0.9"/>
+      <circle cx="203" cy="42"  r="0.8" opacity="0.6"/>
+      <circle cx="249" cy="14"  r="1.3" opacity="0.9"/>
+      <circle cx="294" cy="38"  r="0.9" opacity="0.7"/>
+      <circle cx="335" cy="22"  r="1.1" opacity="0.8"/>
+      <circle cx="374" cy="60"  r="0.8" opacity="0.6"/>
+      <circle cx="418" cy="28"  r="1.4" opacity="0.9"/>
+      <circle cx="460" cy="48"  r="1.0" opacity="0.7"/>
+      <circle cx="490" cy="18"  r="0.9" opacity="0.8"/>
+      <circle cx="55"  cy="90"  r="0.8" opacity="0.6"/>
+      <circle cx="130" cy="108" r="1.1" opacity="0.7"/>
+      <circle cx="195" cy="82"  r="0.9" opacity="0.8"/>
+      <circle cx="316" cy="95"  r="1.0" opacity="0.6"/>
+      <circle cx="440" cy="85"  r="1.2" opacity="0.7"/>
+      <circle cx="470" cy="110" r="0.8" opacity="0.5"/>
+      <circle cx="22"  cy="128" r="1.0" opacity="0.6"/>
+    </g>
+
+    <!-- Aurora curtain 1 — wide sweep -->
+    <path d="M -20 80 Q 80 160 180 120 Q 260 85 340 130 Q 410 165 540 90 L 540 260 Q 410 295 340 255 Q 260 215 180 250 Q 80 290 -20 215 Z"
+      fill="url(#aurora1)" opacity="0.9"/>
+
+    <!-- Aurora curtain 2 — narrower, offset -->
+    <path d="M -20 110 Q 60 175 160 148 Q 240 125 320 158 Q 400 188 540 125 L 540 230 Q 400 258 320 225 Q 240 195 160 218 Q 60 245 -20 182 Z"
+      fill="url(#aurora2)" opacity="0.7"/>
+
+    <!-- Ground aurora glow -->
+    <rect width="512" height="512" fill="url(#glow)"/>
+
+    <!-- Mountain silhouette — jagged Icelandic peaks -->
+    <path d="M 0 340
+             L 0 295
+             L 30 270 L 55 290 L 75 255 L 100 278
+             L 128 240 L 155 265 L 178 232 L 200 255
+             L 230 210 L 260 248 L 285 218 L 312 242
+             L 340 205 L 368 235 L 390 215 L 415 240
+             L 440 260 L 465 238 L 488 252 L 512 235
+             L 512 340 Z"
+      fill="url(#mountains)"/>
+
+    <!-- Snow caps on peaks -->
+    <path d="M 75 255 L 86 268 L 64 268 Z" fill="white" opacity="0.35"/>
+    <path d="M 128 240 L 142 256 L 114 256 Z" fill="white" opacity="0.4"/>
+    <path d="M 178 232 L 193 248 L 163 248 Z" fill="white" opacity="0.35"/>
+    <path d="M 230 210 L 248 230 L 212 230 Z" fill="white" opacity="0.5"/>
+    <path d="M 285 218 L 300 234 L 270 234 Z" fill="white" opacity="0.4"/>
+    <path d="M 340 205 L 357 224 L 323 224 Z" fill="white" opacity="0.45"/>
+    <path d="M 390 215 L 404 230 L 376 230 Z" fill="white" opacity="0.3"/>
+
+    <!-- ── Camera body ───────────────────────────────────── -->
+    <!-- Body shadow/base -->
+    <rect x="88" y="192" width="336" height="230" rx="32" ry="32"
+      fill="#000000" opacity="0.55"/>
+
+    <!-- Body surface -->
+    <rect x="88" y="188" width="336" height="226" rx="32" ry="32"
+      fill="#111620" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+
+    <!-- Top ridge / viewfinder bump -->
+    <rect x="164" y="174" width="100" height="22" rx="8" ry="8"
+      fill="#0e1320" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+    <!-- Shutter button -->
+    <circle cx="350" cy="184" r="14" fill="#1e2740" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+    <circle cx="350" cy="184" r="9"  fill="#f5a623" opacity="0.9"/>
+    <circle cx="346" cy="180" r="3"  fill="white" opacity="0.4"/>
+
+    <!-- Mode dial -->
+    <circle cx="168" cy="184" r="11" fill="#1a2035" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <line x1="168" y1="175" x2="168" y2="179" stroke="white" stroke-width="1.5" opacity="0.5"/>
+    <line x1="177" y1="184" x2="173" y2="184" stroke="white" stroke-width="1.5" opacity="0.5"/>
+
+    <!-- ── Lens ────────────────────────────────────────── -->
+    <!-- Outer ring -->
+    <circle cx="256" cy="310" r="108" fill="#0a0e1a" stroke="rgba(255,255,255,0.15)" stroke-width="2.5"/>
+    <!-- Second ring -->
+    <circle cx="256" cy="310" r="96"  fill="#0c1020" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+    <!-- Lens glass -->
+    <circle cx="256" cy="310" r="83"  fill="url(#lens)"/>
+    <!-- Aurora reflection in glass -->
+    <circle cx="256" cy="310" r="83"  fill="url(#lensAurora)"/>
+    <!-- Specular highlight -->
+    <circle cx="256" cy="310" r="83"  fill="url(#lensHighlight)"/>
+    <!-- Inner glass ring -->
+    <circle cx="256" cy="310" r="83"  fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+    <!-- Aperture blades (inner dark ring) -->
+    <circle cx="256" cy="310" r="52"  fill="#081025" opacity="0.6"/>
+    <circle cx="256" cy="310" r="42"  fill="#060c1e" opacity="0.8"/>
+    <!-- Aperture center sparkle -->
+    <circle cx="256" cy="310" r="18"  fill="#001833" opacity="1"/>
+    <circle cx="248" cy="302" r="5"   fill="white" opacity="0.2"/>
+
+    <!-- Lens reflection streak — aurora green -->
+    <ellipse cx="228" cy="282" rx="22" ry="8" fill="#00ff9f" opacity="0.18"
+      transform="rotate(-35 228 282)"/>
+    <ellipse cx="215" cy="275" rx="10" ry="4" fill="white" opacity="0.12"
+      transform="rotate(-35 215 275)"/>
+
+    <!-- Bottom label area -->
+    <text x="256" y="398" text-anchor="middle"
+      font-family="'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
+      font-size="18" font-weight="700" letter-spacing="3"
+      fill="white" opacity="0.55">ICELAND</text>
+  </g>
+</svg>
