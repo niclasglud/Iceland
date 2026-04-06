@@ -276,9 +276,16 @@ export default function HomePage() {
         )}
 
         {/* Itineraries Panel */}
-        {activeTab === 'itineraries' && !selectedItineraryId && (
+        {activeTab === 'itineraries' && (
           <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-            <ItinerariesList onSelect={(id) => setSelectedItineraryId(id)} />
+            {selectedItineraryId ? (() => {
+              const it = itineraries.find(i => i.id === selectedItineraryId)
+              return it ? (
+                <ItineraryDetail itinerary={it} onBack={() => setSelectedItineraryId(null)} />
+              ) : null
+            })() : (
+              <ItinerariesList onSelect={(id) => setSelectedItineraryId(id)} />
+            )}
           </div>
         )}
 
@@ -326,17 +333,6 @@ export default function HomePage() {
           selectedDayIndex={selectedWeatherDay}
         />
       )}
-
-      {/* Full-screen itinerary detail overlay */}
-      {selectedItineraryId && (() => {
-        const it = itineraries.find(i => i.id === selectedItineraryId)
-        return it ? (
-          <ItineraryDetail
-            itinerary={it}
-            onBack={() => setSelectedItineraryId(null)}
-          />
-        ) : null
-      })()}
 
       {/* Full-screen spot detail overlay */}
       {detailLocation && (

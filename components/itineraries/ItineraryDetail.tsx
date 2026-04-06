@@ -138,11 +138,8 @@ export default function ItineraryDetail({ itinerary, onBack }: ItineraryDetailPr
   return (
     <div
       style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
         backgroundColor: '#0a0b0e',
-        overflowY: 'auto',
+        minHeight: '100%',
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}
     >

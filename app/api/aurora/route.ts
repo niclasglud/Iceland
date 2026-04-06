@@ -40,7 +40,14 @@ function computeProbability(kp: number, cloudCover: number): number {
 function findBestViewingTime(forecast: KpForecastEntry[]): string | undefined {
   if (forecast.length === 0) return undefined
   const nightEntries = forecast.filter((e) => {
-    const h = new Date(e.time).getUTCHours()
+    // Filter by Iceland local time (UTC+0 year-round, same as UTC)
+    const h = parseInt(
+      new Date(e.time).toLocaleString('en-GB', {
+        hour: '2-digit',
+        hour12: false,
+        timeZone: 'Atlantic/Reykjavik',
+      })
+    )
     return (h >= 21 || h <= 3) && e.kp >= 3
   })
   const pool = nightEntries.length > 0 ? nightEntries : forecast
@@ -49,7 +56,7 @@ function findBestViewingTime(forecast: KpForecastEntry[]): string | undefined {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-    timeZone: 'UTC',
+    timeZone: 'Atlantic/Reykjavik',
   })
 }
 
