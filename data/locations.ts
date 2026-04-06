@@ -987,7 +987,7 @@ export const locations: Location[] = [
     auroraRating: 3,
     description: "The most remote and dramatically stark section of the Laugavegur trail — a high plateau of black desert, glacial rivers and breathtaking views across to the Mýrdalsjökull and Eyjafjallajökull ice caps. The Markarfljót canyon near the hut offers a vertiginous view into a blood-red gorge. You feel utterly alone at the edge of the world at this highland waypoint.",
     tags: ['Laugavegur', 'remote', 'black-desert', 'canyon', 'highland', 'glacier-views'],
-    thumbnail: 'https://images.pexels.com/photos/29909021/pexels-photo-29909021.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
+    thumbnail: 'https://images.pexels.com/photos/17625906/pexels-photo-17625906.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
     difficulty: 'hard',
     distance: 165,
     hikingInfo: 'Day 3 hut on Laugavegur trail. Accessible only on foot or super-jeep.',
