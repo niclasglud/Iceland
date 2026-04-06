@@ -360,7 +360,7 @@ export default function HomePage() {
         {/* Weather Panel */}
         {activeTab === 'weather' && (
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            <WeatherPanel weather={weather} sunInfo={sunInfo} />
+            <WeatherPanel sunInfo={sunInfo} />
           </div>
         )}
 
@@ -397,8 +397,8 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Hide bottom panel during navigation — map fills full screen */}
-      {!navigationTarget && (
+      {/* Hide bottom panel during navigation or on spots tab (more room for spots) */}
+      {!navigationTarget && activeTab !== 'spots' && (
         <BottomPanel
           sunInfo={sunInfo}
           moonInfo={moonInfo}
@@ -762,46 +762,107 @@ function NavigationHUD({
   )
 }
 
-function WeatherPanel({ weather, sunInfo }: { weather: WeatherData; sunInfo: SunInfo }) {
+const WEATHER_LOCATIONS = [
+  { name: 'Reykjavík', lat: 64.1355, lng: -21.8954 },
+  { name: 'Vík',       lat: 63.4188, lng: -19.0057 },
+  { name: 'Húsavík',   lat: 66.0449, lng: -17.3391 },
+  { name: 'Höfn',      lat: 64.2539, lng: -15.2082 },
+  { name: 'Grundarf.',  lat: 64.9236, lng: -23.2386 },
+]
+
+function WeatherPanel({ sunInfo }: { sunInfo: SunInfo }) {
+  const [selectedIdx, setSelectedIdx] = useState(0)
+  const [weatherCache, setWeatherCache] = useState<Record<number, WeatherData>>({})
+  const [loading, setLoading] = useState(false)
+
   const fmt = (d: Date) =>
     !d || isNaN(d.getTime())
       ? '--:--'
       : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Atlantic/Reykjavik' })
 
+  useEffect(() => {
+    if (weatherCache[selectedIdx]) return
+    setLoading(true)
+    const loc = WEATHER_LOCATIONS[selectedIdx]
+    fetch(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`)
+      .then((r) => r.json())
+      .then((d: WeatherData) => {
+        setWeatherCache((prev) => ({ ...prev, [selectedIdx]: d }))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [selectedIdx, weatherCache])
+
+  const weather = weatherCache[selectedIdx]
+
   return (
     <div className="space-y-3 pb-4">
-      <div className="card p-4 rounded-xl">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="text-4xl font-light">{weather.temperature}°C</div>
-            <div className="text-[#8a8f9e] text-sm mt-1">{weather.condition}</div>
-            <div className="text-[#8a8f9e] text-sm mt-1">🌬 {weather.windSpeed} km/h</div>
-          </div>
-          <div className="text-[#4a9eff] text-sm text-right">{weather.location}</div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-7 gap-1">
-        {weather.forecast.map((day, i) => (
-          <div
-            key={i}
-            className={`card p-2 rounded-xl flex flex-col items-center gap-0.5 ${i === 0 ? 'border-[#f5a623]' : ''}`}
+      {/* Location tabs */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
+        {WEATHER_LOCATIONS.map((loc, i) => (
+          <button
+            key={loc.name}
+            onClick={() => setSelectedIdx(i)}
+            style={{
+              flexShrink: 0,
+              padding: '6px 14px',
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              border: 'none',
+              background: selectedIdx === i ? '#f5a623' : 'rgba(255,255,255,0.07)',
+              color: selectedIdx === i ? '#0a0b0e' : '#8a8f9e',
+              transition: 'all 0.15s',
+            }}
           >
-            <div className="text-[9px] text-[#8a8f9e] font-medium">{day.day.slice(0, 3)}</div>
-            <div className="text-sm">{day.icon}</div>
-            <div className="text-white text-xs font-semibold">{day.high}°</div>
-            <div className="text-[#8a8f9e] text-[10px]">{day.low}°</div>
-            <div
-              className="text-[8px] font-bold px-1 py-0.5 rounded-full mt-0.5"
-              style={{
-                color: day.quality === 'excellent' || day.quality === 'good' ? '#10b981' : '#6b7280',
-              }}
-            >
-              {day.quality === 'excellent' ? 'Exc' : day.quality === 'good' ? 'Good' : day.quality === 'fair' ? 'Fair' : 'Poor'}
-            </div>
-          </div>
+            {loc.name}
+          </button>
         ))}
       </div>
+
+      {loading || !weather ? (
+        <div style={{ textAlign: 'center', padding: '32px 0', color: '#5a5f6e', fontSize: 13 }}>
+          Loading weather…
+        </div>
+      ) : (
+        <>
+          <div className="card p-4 rounded-xl">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-4xl font-light">{weather.temperature}°C</div>
+                <div className="text-[#8a8f9e] text-sm mt-1">{weather.condition}</div>
+                <div className="text-[#8a8f9e] text-sm mt-1">🌬 {weather.windSpeed} km/h</div>
+              </div>
+              <div className="text-[#4a9eff] text-sm text-right font-semibold">
+                {WEATHER_LOCATIONS[selectedIdx].name}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {weather.forecast.map((day, i) => (
+              <div
+                key={i}
+                className={`card p-2 rounded-xl flex flex-col items-center gap-0.5 ${i === 0 ? 'border-[#f5a623]' : ''}`}
+              >
+                <div className="text-[9px] text-[#8a8f9e] font-medium">{day.day.slice(0, 3)}</div>
+                <div className="text-sm">{day.icon}</div>
+                <div className="text-white text-xs font-semibold">{day.high}°</div>
+                <div className="text-[#8a8f9e] text-[10px]">{day.low}°</div>
+                <div
+                  className="text-[8px] font-bold px-1 py-0.5 rounded-full mt-0.5"
+                  style={{
+                    color: day.quality === 'excellent' || day.quality === 'good' ? '#10b981' : '#6b7280',
+                  }}
+                >
+                  {day.quality === 'excellent' ? 'Exc' : day.quality === 'good' ? 'Good' : day.quality === 'fair' ? 'Fair' : 'Poor'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="card p-4 rounded-xl">
         <div className="font-semibold text-sm mb-3">☀️ Light Schedule</div>
