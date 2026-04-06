@@ -61,7 +61,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "3–4 hours",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "thingvellir",
@@ -84,7 +84,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/3224935/pexels-photo-3224935.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19499970/pexels-photo-19499970.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "geysir",
@@ -107,7 +107,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/3075993/pexels-photo-3075993.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19499959/pexels-photo-19499959.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "gullfoss",
@@ -130,7 +130,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/3894874/pexels-photo-3894874.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19500069/pexels-photo-19500069.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "seljalandsfoss-rr",
@@ -153,7 +153,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/19267246/pexels-photo-19267246.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19267246/pexels-photo-19267246.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "skogafoss-rr",
@@ -176,7 +176,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/29018995/pexels-photo-29018995.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/29018995/pexels-photo-29018995.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reynisfjara-rr",
@@ -199,7 +199,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": true,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/3225528/pexels-photo-3225528.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/31974260/pexels-photo-31974260.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "dyrhol",
@@ -222,7 +222,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "45 minutes",
         "overnight": false,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3894876/pexels-photo-3894876.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/20871541/pexels-photo-20871541.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "jokulsarlon-rr",
@@ -245,7 +245,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": false,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/1891882/pexels-photo-1891882.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/20582185/pexels-photo-20582185.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "diamond-beach-rr",
@@ -268,7 +268,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "45 minutes",
         "overnight": true,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3408745/pexels-photo-3408745.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/4087258/pexels-photo-4087258.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "hofn",
@@ -291,7 +291,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/4825701/pexels-photo-4825701.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/10586442/pexels-photo-10586442.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "east-fjords-coast",
@@ -314,7 +314,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "En route",
         "overnight": false,
         "day": 5,
-        "thumbnail": "https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2355447/pexels-photo-2355447.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "egilsstadir",
@@ -337,7 +337,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 5,
-        "thumbnail": "https://images.pexels.com/photos/1486974/pexels-photo-1486974.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19433891/pexels-photo-19433891.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "dettifoss",
@@ -360,7 +360,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 6,
-        "thumbnail": "https://images.pexels.com/photos/1906438/pexels-photo-1906438.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/1460174/pexels-photo-1460174.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "myvatn",
@@ -383,7 +383,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 6,
-        "thumbnail": "https://images.pexels.com/photos/3224934/pexels-photo-3224934.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/16170451/pexels-photo-16170451.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "godafoss",
@@ -406,7 +406,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "45 minutes",
         "overnight": false,
         "day": 7,
-        "thumbnail": "https://images.pexels.com/photos/3075992/pexels-photo-3075992.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/16251253/pexels-photo-16251253.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "akureyri",
@@ -429,7 +429,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 7,
-        "thumbnail": "https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19742780/pexels-photo-19742780.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "vatnsnes",
@@ -452,7 +452,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 8,
-        "thumbnail": "https://images.pexels.com/photos/9974260/pexels-photo-9974260.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/1686024/pexels-photo-1686024.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reykjavik-end",
@@ -475,10 +475,10 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Journey's end",
         "overnight": false,
         "day": 8,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       }
     ],
-    "coverImage": "https://images.pexels.com/photos/3894874/pexels-photo-3894874.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "coverImage": "https://images.pexels.com/photos/20582185/pexels-photo-20582185.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
     "color": "#f5a623",
     "icon": "🔄"
   },
@@ -514,7 +514,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Morning departure",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "seljalandsfoss-s",
@@ -537,7 +537,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/19267246/pexels-photo-19267246.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19267246/pexels-photo-19267246.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "gljufrabui-s",
@@ -560,7 +560,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "30–45 minutes",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/18273215/pexels-photo-18273215.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/18273215/pexels-photo-18273215.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "skogafoss-s",
@@ -583,7 +583,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/29018995/pexels-photo-29018995.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/29018995/pexels-photo-29018995.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reynisfjara-s",
@@ -606,7 +606,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/3225528/pexels-photo-3225528.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/31974260/pexels-photo-31974260.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "dyrhol-s",
@@ -629,7 +629,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1 hour",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/3894876/pexels-photo-3894876.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/20871541/pexels-photo-20871541.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "fjadra",
@@ -652,7 +652,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–1.5 hours",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/4666748/pexels-photo-4666748.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/9532584/pexels-photo-9532584.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "jokulsarlon-s",
@@ -675,7 +675,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/1891882/pexels-photo-1891882.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/20582185/pexels-photo-20582185.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "diamond-s",
@@ -698,7 +698,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "45 minutes",
         "overnight": true,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/3408745/pexels-photo-3408745.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/4087258/pexels-photo-4087258.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "skaftafell",
@@ -721,7 +721,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": false,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3075993/pexels-photo-3075993.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/20582091/pexels-photo-20582091.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "gullfoss-s",
@@ -744,7 +744,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1 hour",
         "overnight": false,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3894874/pexels-photo-3894874.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19500069/pexels-photo-19500069.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reykjavik-s-end",
@@ -767,10 +767,10 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Journey's end",
         "overnight": false,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       }
     ],
-    "coverImage": "https://images.pexels.com/photos/3225528/pexels-photo-3225528.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "coverImage": "https://images.pexels.com/photos/29018995/pexels-photo-29018995.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
     "color": "#3b82f6",
     "icon": "🌊"
   },
@@ -807,7 +807,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19742780/pexels-photo-19742780.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "godafoss-n",
@@ -830,7 +830,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "45 minutes",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/3075992/pexels-photo-3075992.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/16251253/pexels-photo-16251253.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "dettifoss-n",
@@ -853,7 +853,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/1906438/pexels-photo-1906438.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/1460174/pexels-photo-1460174.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "asbyrgi",
@@ -876,7 +876,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1.5–2 hours",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/3224934/pexels-photo-3224934.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/10589819/pexels-photo-10589819.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "husavik",
@@ -899,7 +899,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": true,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/9974260/pexels-photo-9974260.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19742780/pexels-photo-19742780.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "myvatn-n",
@@ -922,7 +922,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3224935/pexels-photo-3224935.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/16170451/pexels-photo-16170451.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "vatnsnes-n",
@@ -945,7 +945,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/1686024/pexels-photo-1686024.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reykjavik-n-end",
@@ -968,10 +968,10 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Journey's end",
         "overnight": false,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       }
     ],
-    "coverImage": "https://images.pexels.com/photos/1906438/pexels-photo-1906438.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "coverImage": "https://images.pexels.com/photos/1460174/pexels-photo-1460174.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
     "color": "#8b5cf6",
     "icon": "🐋"
   },
@@ -1007,7 +1007,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/4825701/pexels-photo-4825701.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/10586442/pexels-photo-10586442.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "djupivogur",
@@ -1030,7 +1030,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2355447/pexels-photo-2355447.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "petra",
@@ -1053,7 +1053,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1 hour",
         "overnight": false,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/1486974/pexels-photo-1486974.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/17929956/pexels-photo-17929956.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "seydisfjordur",
@@ -1076,7 +1076,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": true,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/4666748/pexels-photo-4666748.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/6186487/pexels-photo-6186487.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "egilsstadir-e",
@@ -1099,7 +1099,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Half day",
         "overnight": true,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3224934/pexels-photo-3224934.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19433891/pexels-photo-19433891.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "hengifoss",
@@ -1122,7 +1122,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours hike",
         "overnight": false,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/1486974/pexels-photo-1486974.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/26700326/pexels-photo-26700326.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "jokulsarlon-e",
@@ -1145,10 +1145,10 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": false,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/1891882/pexels-photo-1891882.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/20582185/pexels-photo-20582185.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       }
     ],
-    "coverImage": "https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "coverImage": "https://images.pexels.com/photos/19433891/pexels-photo-19433891.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
     "color": "#10b981",
     "icon": "🦅"
   },
@@ -1183,7 +1183,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Morning departure",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "borgarnes",
@@ -1206,7 +1206,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–1.5 hours",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/28940324/pexels-photo-28940324.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "holmavik",
@@ -1229,7 +1229,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/9974260/pexels-photo-9974260.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/6731715/pexels-photo-6731715.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "isafjordur",
@@ -1252,7 +1252,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/4825701/pexels-photo-4825701.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/16550148/pexels-photo-16550148.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "latrabjarg",
@@ -1275,7 +1275,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": true,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3224935/pexels-photo-3224935.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/4457408/pexels-photo-4457408.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "raudasandur",
@@ -1298,7 +1298,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1–2 hours",
         "overnight": false,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/3894876/pexels-photo-3894876.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/30637692/pexels-photo-30637692.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "dynjandi",
@@ -1321,7 +1321,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "1.5–2 hours",
         "overnight": true,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/1906438/pexels-photo-1906438.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/17474931/pexels-photo-17474931.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "snaefellsnes-w",
@@ -1344,7 +1344,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Half day",
         "overnight": false,
         "day": 5,
-        "thumbnail": "https://images.pexels.com/photos/3075993/pexels-photo-3075993.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/16550148/pexels-photo-16550148.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reykjavik-w-end",
@@ -1367,10 +1367,10 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Journey's end",
         "overnight": false,
         "day": 5,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       }
     ],
-    "coverImage": "https://images.pexels.com/photos/9974260/pexels-photo-9974260.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "coverImage": "https://images.pexels.com/photos/17474931/pexels-photo-17474931.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
     "color": "#ef4444",
     "icon": "🐦"
   },
@@ -1404,7 +1404,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Early morning departure",
         "overnight": false,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "thorsmork",
@@ -1427,7 +1427,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 1,
-        "thumbnail": "https://images.pexels.com/photos/3224934/pexels-photo-3224934.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/19499968/pexels-photo-19499968.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "landmannalaugar",
@@ -1450,7 +1450,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 2,
-        "thumbnail": "https://images.pexels.com/photos/1486974/pexels-photo-1486974.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/29018986/pexels-photo-29018986.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "askja",
@@ -1473,7 +1473,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Overnight",
         "overnight": true,
         "day": 3,
-        "thumbnail": "https://images.pexels.com/photos/3894874/pexels-photo-3894874.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/360912/pexels-photo-360912.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "kerlingarfjoll",
@@ -1496,7 +1496,7 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "2–3 hours",
         "overnight": false,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/3075993/pexels-photo-3075993.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/32096257/pexels-photo-32096257.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       },
       {
         "id": "reykjavik-h-end",
@@ -1519,10 +1519,10 @@ export const itineraries: Itinerary[] = [
         "recommendedTime": "Journey's end",
         "overnight": false,
         "day": 4,
-        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800"
+        "thumbnail": "https://images.pexels.com/photos/2193300/pexels-photo-2193300.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1"
       }
     ],
-    "coverImage": "https://images.pexels.com/photos/1486974/pexels-photo-1486974.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "coverImage": "https://images.pexels.com/photos/29018986/pexels-photo-29018986.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1",
     "color": "#06b6d4",
     "icon": "🏔️"
   }

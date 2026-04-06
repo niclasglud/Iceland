@@ -688,7 +688,7 @@ function WeatherPanel({ weather, sunInfo }: { weather: WeatherData; sunInfo: Sun
   const fmt = (d: Date) =>
     !d || isNaN(d.getTime())
       ? '--:--'
-      : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+      : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Atlantic/Reykjavik' })
 
   return (
     <div className="space-y-3 pb-4">
