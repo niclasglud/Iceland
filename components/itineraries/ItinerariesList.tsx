@@ -1,8 +1,8 @@
 'use client'
-import React from 'react'
 
-import { Clock, Gauge, Navigation, Calendar, AlertTriangle } from 'lucide-react'
-import { itineraries, type Itinerary } from '@/data/itineraries'
+import { Clock, Navigation, AlertTriangle } from 'lucide-react'
+import { itineraries } from '@/data/itineraries'
+import type { Itinerary } from '@/data/itineraries'
 
 interface ItinerariesListProps {
   onSelect: (id: string) => void
@@ -20,7 +20,7 @@ export default function ItinerariesList({ onSelect }: ItinerariesListProps) {
       style={{
         backgroundColor: '#0a0b0e',
         minHeight: '100%',
-        padding: '16px 16px 32px',
+        padding: '16px 16px 40px',
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}
     >
@@ -34,120 +34,105 @@ export default function ItinerariesList({ onSelect }: ItinerariesListProps) {
         </p>
       </div>
 
-      {/* Cards grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 12,
-        }}
-      >
+      {/* Cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {itineraries.map((it) => (
           <button
             key={it.id}
             onClick={() => onSelect(it.id)}
             style={{
               background: 'none',
-              border: 'none',
+              border: '1px solid rgba(255,255,255,0.07)',
               padding: 0,
               cursor: 'pointer',
-              textAlign: 'left',
-              borderRadius: 14,
+              textAlign: 'left' as const,
+              borderRadius: 16,
               overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'column' as const,
               backgroundColor: 'rgba(18,20,28,0.95)',
-              transition: 'transform 0.15s ease',
+              width: '100%',
             }}
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.transform = 'scale(1.02)')}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.transform = 'scale(1)')}
           >
             {/* Cover photo */}
-            <div style={{ position: 'relative', width: '100%', paddingTop: '65%', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
               <img
                 src={it.coverImage}
                 alt={it.name}
                 style={{
-                  position: 'absolute',
-                  inset: 0,
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
+                  display: 'block',
                 }}
               />
-              {/* Gradient overlay */}
+              {/* Dark gradient */}
               <div
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'linear-gradient(to top, rgba(10,11,14,0.9) 0%, rgba(10,11,14,0.2) 60%, transparent 100%)',
+                  background: 'linear-gradient(to top, rgba(10,11,14,0.92) 0%, rgba(10,11,14,0.3) 50%, transparent 100%)',
                 }}
               />
-              {/* Icon + name on photo */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 8,
-                  left: 10,
-                  right: 10,
-                }}
-              >
-                <div style={{ fontSize: 18, marginBottom: 2 }}>{it.icon}</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>
-                  {it.name}
-                </div>
-              </div>
               {/* 4WD badge */}
               {it.requiresFourWD && (
                 <div
                   style={{
                     position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    backgroundColor: 'rgba(245,166,35,0.9)',
+                    top: 10,
+                    right: 10,
+                    backgroundColor: 'rgba(245,166,35,0.95)',
                     color: '#0a0b0e',
-                    fontSize: 8,
+                    fontSize: 9,
                     fontWeight: 700,
-                    padding: '2px 6px',
+                    padding: '3px 8px',
                     borderRadius: 8,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 3,
+                    gap: 4,
                   }}
                 >
-                  <AlertTriangle size={8} />
-                  4WD
+                  <AlertTriangle size={9} />
+                  4WD REQUIRED
                 </div>
               )}
+              {/* Name + icon */}
+              <div style={{ position: 'absolute', bottom: 12, left: 14, right: 14 }}>
+                <div style={{ fontSize: 20, marginBottom: 2 }}>{it.icon}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
+                  {it.name}
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>
+                  {it.tagline}
+                </div>
+              </div>
             </div>
 
-            {/* Info below photo */}
-            <div style={{ padding: '10px 10px 12px' }}>
+            {/* Info strip */}
+            <div style={{ padding: '12px 14px 14px' }}>
               {/* Stats row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-                {/* Days */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Clock size={10} color="#8a8f9e" />
-                  <span style={{ fontSize: 11, color: '#e2e4ea', fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Clock size={12} color="#8a8f9e" />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>
                     {it.days} days
                   </span>
                 </div>
-                {/* Distance */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Navigation size={10} color="#8a8f9e" />
-                  <span style={{ fontSize: 11, color: '#8a8f9e' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Navigation size={12} color="#8a8f9e" />
+                  <span style={{ fontSize: 13, color: '#8a8f9e' }}>
                     {it.totalKm.toLocaleString()} km
                   </span>
                 </div>
-                {/* Difficulty */}
                 <div
                   style={{
-                    fontSize: 10,
+                    marginLeft: 'auto',
+                    fontSize: 11,
                     fontWeight: 600,
                     color: difficultyColor(it.difficulty),
                     backgroundColor: `${difficultyColor(it.difficulty)}18`,
-                    padding: '1px 6px',
-                    borderRadius: 8,
+                    padding: '3px 9px',
+                    borderRadius: 20,
                     border: `1px solid ${difficultyColor(it.difficulty)}33`,
                   }}
                 >
@@ -155,21 +140,16 @@ export default function ItinerariesList({ onSelect }: ItinerariesListProps) {
                 </div>
               </div>
 
-              {/* Tagline */}
-              <p style={{ margin: '0 0 6px', fontSize: 11, color: '#8a8f9e', lineHeight: 1.4 }}>
-                {it.tagline}
-              </p>
-
               {/* Season tags */}
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
                 {it.seasons.map((s) => (
                   <span
                     key={s}
                     style={{
-                      fontSize: 9,
+                      fontSize: 10,
                       color: '#5a5f6e',
                       backgroundColor: 'rgba(255,255,255,0.05)',
-                      padding: '1px 5px',
+                      padding: '2px 7px',
                       borderRadius: 6,
                       border: '1px solid rgba(255,255,255,0.07)',
                     }}
@@ -177,24 +157,24 @@ export default function ItinerariesList({ onSelect }: ItinerariesListProps) {
                     {s}
                   </span>
                 ))}
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: it.color,
+                    marginLeft: 'auto',
+                    fontWeight: 600,
+                  }}
+                >
+                  {it.stops.length} stops →
+                </span>
               </div>
             </div>
           </button>
         ))}
       </div>
 
-      {/* Footer note */}
-      <p
-        style={{
-          margin: '20px 0 0',
-          fontSize: 11,
-          color: '#3a3f4e',
-          textAlign: 'center',
-          lineHeight: 1.5,
-        }}
-      >
-        Distances and drive times are approximate.{'\n'}
-        Always check road conditions at road.is
+      <p style={{ margin: '20px 0 0', fontSize: 11, color: '#3a3f4e', textAlign: 'center' as const, lineHeight: 1.5 }}>
+        Drive times approximate. Check road.is before travel.
       </p>
     </div>
   )
