@@ -12,7 +12,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Westfjords', 'Vestmannaeyjar', 'Látrabjarg', 'Borgarfjörður Eystri', 'Dyrhólaey'],
     description: 'Iceland hosts the world\'s largest Atlantic puffin colony — over 8 million birds. They nest in clifftop burrows and are famously fearless around people.',
     tips: 'Best in the evening when they return from fishing. Látrabjarg cliffs in the Westfjords and Borgarfjörður Eystri in the East are top spots.',
-    photo: 'https://images.pexels.com/photos/1618606/pexels-photo-1618606.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/28744728/pexels-photo-28744728.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'humpback-whale',
@@ -23,7 +23,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Húsavík', 'Dalvík', 'Akureyri', 'Skjálfandi Bay'],
     description: 'Húsavík is Europe\'s whale watching capital. Humpbacks feed on capelin and herring in Iceland\'s nutrient-rich waters, breaching dramatically in the bay.',
     tips: 'Húsavík has near-100% sighting rates in peak summer. Book a 3-hour boat tour early — they fill up weeks in advance.',
-    photo: 'https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/6134257/pexels-photo-6134257.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'minke-whale',
@@ -34,7 +34,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Húsavík', 'Reykjavík', 'Faxaflói Bay'],
     description: 'The most commonly seen whale in Iceland. Smaller and faster than humpbacks, minkes often surface close to tour boats for memorable encounters.',
     tips: 'Reykjavík whale watching tours from the Old Harbour depart year-round, with highest success rates from June to September.',
-    photo: 'https://images.pexels.com/photos/9742695/pexels-photo-9742695.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/22763975/pexels-photo-22763975.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'orca',
@@ -45,7 +45,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Snæfellsnes', 'Grundarfjörður', 'Breiðafjörður'],
     description: 'Iceland\'s most spectacular whale sighting. Orcas follow herring migration into the fjords in winter, sometimes hunting in pods of 20+ animals visible from shore.',
     tips: 'Grundarfjörður on the Snæfellsnes Peninsula is the best shore-based viewing spot. Best seen from November to February from the harbour.',
-    photo: 'https://images.pexels.com/photos/8975831/pexels-photo-8975831.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/3325908/pexels-photo-3325908.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'arctic-fox',
@@ -56,7 +56,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Westfjords', 'Hornstrandir', 'Melrakkaslétta', 'Ísafjörður'],
     description: 'Iceland\'s only native land mammal. The Westfjords has the highest density. Arctic foxes come in two colour morphs — white in winter, blue-grey in summer.',
     tips: 'Hornstrandir Nature Reserve (Westfjords) is a protected area with no hunting — foxes here are unusually bold and approachable. Access by ferry from Ísafjörður.',
-    photo: 'https://images.pexels.com/photos/1456291/pexels-photo-1456291.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/26690634/pexels-photo-26690634.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'reindeer',
@@ -67,7 +67,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['East Iceland', 'Snæfell mountain', 'Lagarfljót', 'Fjarðabyggð'],
     description: 'Introduced from Norway in the 18th century, Iceland\'s wild reindeer herds live exclusively in the East. About 3,000 animals roam the eastern highlands.',
     tips: 'Drive the roads east of Egilsstaðir towards Snæfell and Lónsöræfi in autumn when herds come down from the highlands. Most common between 6pm–9pm.',
-    photo: 'https://images.pexels.com/photos/2613148/pexels-photo-2613148.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/1750825/pexels-photo-1750825.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'grey-seal',
@@ -78,7 +78,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Vatnsnes Peninsula', 'Snæfellsnes', 'Jökulsárlón', 'South coast beaches'],
     description: 'Iceland has one of Europe\'s largest grey seal populations. Vatnsnes Peninsula in northwest Iceland is the most accessible colony, with hundreds of seals basking on rocks.',
     tips: 'Hvammstangi on the Vatnsnes Peninsula has a seal centre and regular sightings from shore. Pups are born in June — keep a respectful distance.',
-    photo: 'https://images.pexels.com/photos/1661535/pexels-photo-1661535.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/9181272/pexels-photo-9181272.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'arctic-tern',
@@ -100,7 +100,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Nationwide', 'Þingvellir', 'Kirkjufell', 'Jökulsárlón', 'North Iceland'],
     description: 'Iceland sits directly under the auroral oval — one of the best places on Earth to see the Northern Lights. Need dark skies, clear weather, and KP ≥ 2.',
     tips: 'Check the Aurora tab for live KP index and forecasts. Drive away from Reykjavík to escape light pollution. Dark sky sites: Þingvellir, Kirkjufell, and north of Akureyri.',
-    photo: 'https://images.pexels.com/photos/1933239/pexels-photo-1933239.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/17214262/pexels-photo-17214262.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'midnight-sun',
@@ -111,7 +111,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Nationwide', 'Grímsey Island', 'Akureyri', 'North Iceland'],
     description: 'Around the summer solstice (June 21), the sun barely sets in Iceland. Grímsey island — straddling the Arctic Circle — has true midnight sun in June.',
     tips: 'In Reykjavík, twilight never fully disappears June–July. Bring a sleep mask! For true midnight sun, go to Grímsey or anywhere north of Akureyri.',
-    photo: 'https://images.pexels.com/photos/1562058/pexels-photo-1562058.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/20783827/pexels-photo-20783827.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'lupin',
@@ -122,7 +122,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['South Iceland', 'Hella', 'Þórsmörk', 'Ring Road (Rte 1)'],
     description: 'Invasive Nootka lupin covers large parts of Iceland in brilliant purple from late June through July. Controversial but undeniably photogenic against black sand and snow peaks.',
     tips: 'Best seen along Route 1 between Hella and Vík, and in the Þórsmörk valley. Peak colour: last week of June and first two weeks of July.',
-    photo: 'https://images.pexels.com/photos/4220967/pexels-photo-4220967.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/4338148/pexels-photo-4338148.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'glacier-lagoon-ice',
@@ -133,7 +133,7 @@ export const WILDLIFE: WildlifeEntry[] = [
     locations: ['Jökulsárlón', 'Fjallsárlón', 'Diamond Beach'],
     description: 'Jökulsárlón glacier lagoon fills with icebergs calving from Breiðamerkurjökull glacier. The icebergs slowly drift out to Diamond Beach, where they glow like crystals on black sand.',
     tips: 'Visit at sunrise for the best light on the icebergs. Boat tours available in summer. The lagoon is always stunning but most dramatic in late summer and autumn.',
-    photo: 'https://images.pexels.com/photos/2356045/pexels-photo-2356045.jpeg?auto=compress&cs=tinysrgb&w=800',
+    photo: 'https://images.pexels.com/photos/29213491/pexels-photo-29213491.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
 ]
 
