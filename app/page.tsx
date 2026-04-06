@@ -774,6 +774,7 @@ function WeatherPanel({ sunInfo }: { sunInfo: SunInfo }) {
   const [selectedIdx, setSelectedIdx] = useState(0)
   const [weatherCache, setWeatherCache] = useState<Record<number, WeatherData>>({})
   const [loading, setLoading] = useState(false)
+  const fetchedRef = useRef<Set<number>>(new Set())
 
   const fmt = (d: Date) =>
     !d || isNaN(d.getTime())
@@ -781,7 +782,8 @@ function WeatherPanel({ sunInfo }: { sunInfo: SunInfo }) {
       : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Atlantic/Reykjavik' })
 
   useEffect(() => {
-    if (weatherCache[selectedIdx]) return
+    if (fetchedRef.current.has(selectedIdx)) return
+    fetchedRef.current.add(selectedIdx)
     setLoading(true)
     const loc = WEATHER_LOCATIONS[selectedIdx]
     fetch(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`)
@@ -791,7 +793,7 @@ function WeatherPanel({ sunInfo }: { sunInfo: SunInfo }) {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [selectedIdx, weatherCache])
+  }, [selectedIdx])
 
   const weather = weatherCache[selectedIdx]
 
