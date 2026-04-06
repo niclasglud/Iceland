@@ -830,7 +830,7 @@ export const locations: Location[] = [
     auroraRating: 3,
     description: "Iceland's most spectacular highland destination — a surreal landscape of steaming hot springs, lava fields and rainbow-coloured rhyolite mountains in every shade of ochre, green, pink and purple. The natural geothermal pool here is one of the finest wild hot spring experiences on earth. Starting point of the legendary Laugavegur trail.",
     tags: ['rhyolite', 'hot-spring', 'colourful-mountains', 'Laugavegur', 'highland', '4WD'],
-    thumbnail: 'https://images.pexels.com/photos/29018986/pexels-photo-29018986.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
+    thumbnail: 'https://images.pexels.com/photos/27680491/pexels-photo-27680491.jpeg?auto=compress&cs=tinysrgb&w=800&h=560&dpr=1',
     difficulty: 'moderate',
     distance: 185,
     hikingInfo: 'Starting point of Laugavegur trail (55 km to Þórsmörk, 4 days). Hot spring free to use.',
