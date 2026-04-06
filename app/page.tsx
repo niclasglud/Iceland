@@ -191,7 +191,7 @@ export default function HomePage() {
     : null
 
   return (
-    <div className="flex flex-col h-[100dvh] w-screen overflow-hidden bg-[#0a0b0e] select-none">
+    <div className="flex flex-col h-[100dvh] w-screen overflow-hidden bg-[#0a0b0e] select-none safe-pt">
       {/* Hide top nav during navigation for full-screen map */}
       {!navigationTarget && (
         <TopNav
