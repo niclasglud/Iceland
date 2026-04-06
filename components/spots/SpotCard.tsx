@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { Plus } from 'lucide-react'
 import { Location, SunInfo } from '@/types'
 
 interface SpotCardProps {
@@ -8,6 +9,7 @@ interface SpotCardProps {
   isSelected: boolean
   onSelect: (location: Location) => void
   sunInfo?: Pick<SunInfo, 'goldenHour' | 'sunrise'>
+  onAddToTrip?: (location: Location) => void
 }
 
 // Region display config: label + color
@@ -49,7 +51,7 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-export default function SpotCard({ location, isSelected, onSelect, sunInfo }: SpotCardProps) {
+export default function SpotCard({ location, isSelected, onSelect, sunInfo, onAddToTrip }: SpotCardProps) {
   const region = REGION_INFO[location.region] ?? { label: location.region, color: '#8a8f9e', bg: 'rgba(138,143,158,0.12)' }
   const thumbFallback = THUMB_FALLBACK_COLORS[location.type] ?? 'linear-gradient(135deg,#1a1a2e,#4a9eff)'
   const visibleTags = location.tags.slice(0, 3)
@@ -221,6 +223,30 @@ export default function SpotCard({ location, isSelected, onSelect, sunInfo }: Sp
             </span>
           )}
         </div>
+
+        {/* Add to Trip button */}
+        {onAddToTrip && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onAddToTrip(location) }}
+            style={{
+              marginTop: 6,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 10,
+              fontWeight: 600,
+              color: '#f5a623',
+              backgroundColor: 'rgba(245,166,35,0.10)',
+              border: '1px solid rgba(245,166,35,0.25)',
+              borderRadius: 8,
+              padding: '4px 9px',
+              cursor: 'pointer',
+            }}
+          >
+            <Plus size={10} />
+            Add to Trip
+          </button>
+        )}
       </div>
 
       {/* ── Right: thumbnail (35%) ───────────────────────────────────────── */}

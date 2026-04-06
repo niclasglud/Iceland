@@ -6,6 +6,7 @@ import { Location, BestLight } from '@/types'
 import { getFRoadStatus } from '@/lib/spot-scoring'
 import SpotCard from './SpotCard'
 import SpotFilters from './SpotFilters'
+import WildlifeCalendar from '@/components/wildlife/WildlifeCalendar'
 
 const TYPE_ICONS: Record<string, string> = {
   waterfall: '💧', glacier: '🧊', volcano: '🌋', lake: '🏞️',
@@ -35,6 +36,7 @@ interface SpotsListProps {
   fRoadFilter: boolean
   onFRoadFilterChange: (v: boolean) => void
   featuredSpots?: Location[]
+  onAddToTrip?: (loc: Location) => void
 }
 
 export default function SpotsList({
@@ -50,6 +52,7 @@ export default function SpotsList({
   fRoadFilter,
   onFRoadFilterChange,
   featuredSpots,
+  onAddToTrip,
 }: SpotsListProps) {
   const [picksCollapsed, setPicksCollapsed] = useState(false)
   const nowMonth = new Date().getMonth()
@@ -203,6 +206,9 @@ export default function SpotsList({
         </div>
       )}
 
+      {/* ── Wildlife this month ─────────────────────────────────────────────── */}
+      <WildlifeCalendar compact />
+
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
       <div className="px-3 py-2 shrink-0">
         <SpotFilters
@@ -279,6 +285,7 @@ export default function SpotsList({
               location={loc}
               isSelected={selectedLocation?.id === loc.id}
               onSelect={onLocationSelect}
+              onAddToTrip={onAddToTrip}
             />
           ))
         )}

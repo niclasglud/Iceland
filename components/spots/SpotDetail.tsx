@@ -10,6 +10,7 @@ interface SpotDetailProps {
   onClose: () => void
   onViewOnMap: () => void
   onNavigate?: (location: Location) => void
+  onAddToTrip?: (location: Location) => void
 }
 
 const REGION_INFO: Record<string, { label: string; color: string; bg: string }> = {
@@ -67,7 +68,7 @@ const THUMB_FALLBACK: Record<string, string> = {
   valley:      'linear-gradient(160deg,#081a0f,#15803d)',
 }
 
-export default function SpotDetail({ location, onClose, onViewOnMap, onNavigate }: SpotDetailProps) {
+export default function SpotDetail({ location, onClose, onViewOnMap, onNavigate, onAddToTrip }: SpotDetailProps) {
   const region = REGION_INFO[location.region] ?? { label: location.region, color: '#8a8f9e', bg: 'rgba(138,143,158,0.15)' }
   const fallback = THUMB_FALLBACK[location.type] ?? 'linear-gradient(160deg,#111,#333)'
   const typeIcon = TYPE_ICONS[location.type] ?? '📍'
@@ -290,6 +291,21 @@ export default function SpotDetail({ location, onClose, onViewOnMap, onNavigate 
 
         {/* CTA buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+          {/* Add to Trip */}
+          {onAddToTrip && (
+            <button
+              onClick={() => { onAddToTrip(location); onClose() }}
+              style={{
+                width: '100%', height: 44, borderRadius: 14, fontWeight: 700, fontSize: 14,
+                background: 'rgba(245,166,35,0.12)', color: '#f5a623',
+                border: '1px solid rgba(245,166,35,0.35)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}
+            >
+              + Add to My Trip
+            </button>
+          )}
+
           {/* Start Navigation — primary CTA */}
           {onNavigate && (
             <button

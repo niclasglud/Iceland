@@ -16,7 +16,12 @@ import SpotDetail from '@/components/spots/SpotDetail'
 import AuroraBar from '@/components/aurora/AuroraBar'
 import ItinerariesList from '@/components/itineraries/ItinerariesList'
 import ItineraryDetail from '@/components/itineraries/ItineraryDetail'
+import SafetyPanel from '@/components/safety/SafetyPanel'
+import WildlifeCalendar from '@/components/wildlife/WildlifeCalendar'
+import TripPlanner from '@/components/planner/TripPlanner'
 import { itineraries } from '@/data/itineraries'
+import { loadTrip, saveTrip, generateStopId } from '@/data/custom-trip'
+import type { CustomTripStop } from '@/types'
 
 // Dynamically import Mapbox component (no SSR)
 const IcelandMap = dynamic(() => import('@/components/map/IcelandMap'), {
@@ -71,6 +76,7 @@ export default function HomePage() {
   const [auroraData, setAuroraData] = useState<AuroraData>(getMockAuroraData())
   const [weather, setWeather] = useState<WeatherData>(getMockWeatherData())
   const [selectedItineraryId, setSelectedItineraryId] = useState<string | null>(null)
+  const [planStops, setPlanStops] = useState<CustomTripStop[]>(() => loadTrip())
 
   const bestSpotsToday = useMemo(
     () => getBestSpotsToday(locations, weather, sunInfo, auroraData, 5),
@@ -179,6 +185,50 @@ export default function HomePage() {
 
   const handleCloseDetail = useCallback(() => setDetailLocation(null), [])
 
+  const handleAddToTrip = useCallback((location: Location) => {
+    setPlanStops((prev) => {
+      // Determine which day to add to (last day used, or day 1)
+      const lastDay = prev.length > 0 ? Math.max(...prev.map((s) => s.day)) : 1
+      const day = prev.length === 0 ? 1 : lastDay
+      const newStop: CustomTripStop = {
+        id: generateStopId(),
+        locationId: location.id,
+        name: location.name,
+        thumbnail: location.thumbnail,
+        coordinates: location.coordinates,
+        region: location.region,
+        type: location.type,
+        day,
+      }
+      // Auto-calculate drive time from previous stop in same day (fire-and-forget)
+      const prevInDay = prev.filter((s) => s.day === day)
+      if (prevInDay.length > 0) {
+        const last = prevInDay[prevInDay.length - 1]
+        const [fromLng, fromLat] = last.coordinates
+        const [toLng, toLat] = location.coordinates
+        fetch(`/api/route?fromLng=${fromLng}&fromLat=${fromLat}&toLng=${toLng}&toLat=${toLat}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data?.distance && data?.duration) {
+              setPlanStops((cur) => {
+                const updated = cur.map((s) =>
+                  s.id === newStop.id
+                    ? { ...s, driveFromPrev: { km: Math.round(data.distance / 1000), minutes: Math.round(data.duration / 60) } }
+                    : s
+                )
+                saveTrip(updated)
+                return updated
+              })
+            }
+          })
+          .catch(() => {})
+      }
+      const updated = [...prev, newStop]
+      saveTrip(updated)
+      return updated
+    })
+  }, [])
+
   const handleViewOnMap = useCallback(() => {
     setDetailLocation(null)
     setActiveTab('map')
@@ -221,6 +271,7 @@ export default function HomePage() {
               fRoadFilter={fRoadFilter}
               onFRoadFilterChange={setFRoadFilter}
               featuredSpots={bestSpotsToday}
+              onAddToTrip={handleAddToTrip}
             />
           </div>
         )}
@@ -319,6 +370,31 @@ export default function HomePage() {
             <CompassDisplay sunAzimuth={sunInfo.azimuth} />
           </div>
         )}
+
+        {/* Safety Panel */}
+        {activeTab === 'safety' && (
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+            <SafetyPanel />
+          </div>
+        )}
+
+        {/* Wildlife Panel */}
+        {activeTab === 'wildlife' && (
+          <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+            <WildlifeCalendar />
+          </div>
+        )}
+
+        {/* Trip Planner Panel */}
+        {activeTab === 'plan' && (
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <TripPlanner
+              stops={planStops}
+              onStopsChange={setPlanStops}
+              onSwitchToSpots={() => setActiveTab('spots')}
+            />
+          </div>
+        )}
       </div>
 
       {/* Hide bottom panel during navigation — map fills full screen */}
@@ -346,6 +422,10 @@ export default function HomePage() {
             setNavigationTarget(loc)
             setActiveTab('map')
             setDetailLocation(null)
+          }}
+          onAddToTrip={(loc) => {
+            handleAddToTrip(loc)
+            handleCloseDetail()
           }}
         />
       )}

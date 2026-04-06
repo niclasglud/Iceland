@@ -119,7 +119,48 @@ export interface MoonInfo {
   set?: Date
 }
 
-export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather' | 'itineraries'
+export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather' | 'itineraries' | 'safety' | 'plan' | 'wildlife'
+
+export interface WildlifeEntry {
+  id: string
+  name: string
+  emoji: string
+  months: number[] // 0=Jan, 11=Dec
+  peakMonths: number[]
+  locations: string[] // region names or place names
+  description: string
+  tips: string
+  photo: string // Pexels image URL
+}
+
+export interface CustomTripStop {
+  id: string // unique instance id
+  locationId: string
+  name: string
+  thumbnail: string
+  coordinates: [number, number]
+  region: string
+  type: string
+  day: number // which day (1-indexed)
+  driveFromPrev?: { km: number; minutes: number }
+}
+
+export interface RoadWarning {
+  region: string
+  severity: 'green' | 'yellow' | 'red'
+  message: string
+  type: 'wind' | 'snow' | 'ice' | 'flood' | 'closure' | 'general'
+}
+
+export interface FRoad {
+  id: string       // e.g. "F26"
+  name: string     // e.g. "Sprengisandur"
+  region: string
+  openMonth: number  // 0-indexed, typically June (5)
+  closeMonth: number // typically September (8) or October (9)
+  requiresSuperJeep: boolean
+  description: string
+}
 
 export interface RouteStep {
   instruction: string
