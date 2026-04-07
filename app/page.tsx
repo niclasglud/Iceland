@@ -41,6 +41,11 @@ const PlacesTab = dynamic(() => import('@/components/places/PlacesTab'), {
   loading: () => <div className="flex-1 bg-[#0a0b0e]" />,
 })
 
+const AIBuilder = dynamic(() => import('@/components/itineraries/AIBuilder'), {
+  ssr: false,
+  loading: () => <div className="flex-1 bg-[#0a0b0e]" />,
+})
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('map')
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
@@ -405,6 +410,13 @@ export default function HomePage() {
         {activeTab === 'places' && (
           <div className="flex-1 overflow-hidden flex flex-col">
             <PlacesTab />
+          </div>
+        )}
+
+        {/* AI Itinerary Builder */}
+        {activeTab === 'ai-builder' && (
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <AIBuilder onAddToTrip={(loc) => { handleAddToTrip(loc); setActiveTab('plan') }} />
           </div>
         )}
       </div>

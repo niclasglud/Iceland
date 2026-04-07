@@ -33,7 +33,7 @@ export type BestLight =
   | 'sunset'
 export type Difficulty = 'easy' | 'moderate' | 'hard' | 'extreme'
 
-export type PlaceType = 'restaurant' | 'cafe' | 'hotel'
+export type PlaceType = 'restaurant' | 'cafe' | 'hotel' | 'campsite' | 'geothermal-pool'
 export type PriceRange = '$' | '$$' | '$$$' | '$$$$'
 
 export interface Place {
@@ -139,7 +139,7 @@ export interface MoonInfo {
   set?: Date
 }
 
-export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather' | 'itineraries' | 'safety' | 'plan' | 'wildlife' | 'places'
+export type ActiveTab = 'map' | 'spots' | 'compass' | 'aurora' | 'weather' | 'itineraries' | 'safety' | 'plan' | 'wildlife' | 'places' | 'ai-builder'
 
 export interface WildlifeEntry {
   id: string

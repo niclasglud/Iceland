@@ -25,6 +25,8 @@ const TYPE_LABELS: { id: TypeFilter; label: string }[] = [
   { id: 'restaurant', label: 'Restaurants' },
   { id: 'cafe', label: 'Cafes' },
   { id: 'hotel', label: 'Hotels' },
+  { id: 'campsite', label: 'Campsites' },
+  { id: 'geothermal-pool', label: 'Pools' },
 ]
 
 interface RegionOption {
@@ -60,7 +62,7 @@ export default function PlacesTab() {
   )
 
   const countByType = useMemo(() => {
-    const counts: Record<string, number> = { restaurant: 0, cafe: 0, hotel: 0 }
+    const counts: Record<string, number> = { restaurant: 0, cafe: 0, hotel: 0, campsite: 0, 'geothermal-pool': 0 }
     places.forEach((p) => { counts[p.type] = (counts[p.type] || 0) + 1 })
     return counts
   }, [])
@@ -71,7 +73,7 @@ export default function PlacesTab() {
       <div style={{ padding: '12px 16px 8px' }}>
         <div style={{ color: '#ffffff', fontSize: 18, fontWeight: 700, lineHeight: '1.2' }}>Places</div>
         <div style={{ color: '#8a8f9e', fontSize: 12, marginTop: 2 }}>
-          {places.length} restaurants, cafes &amp; hotels
+          {places.length} restaurants, cafes, hotels &amp; more
         </div>
       </div>
 
@@ -207,11 +209,22 @@ export default function PlacesTab() {
                         background:
                           place.type === 'hotel'
                             ? 'rgba(74,158,255,0.15)'
+                            : place.type === 'campsite'
+                            ? 'rgba(74,200,100,0.15)'
+                            : place.type === 'geothermal-pool'
+                            ? 'rgba(100,180,255,0.15)'
                             : 'rgba(245,166,35,0.15)',
-                        color: place.type === 'hotel' ? '#4a9eff' : '#f5a623',
+                        color:
+                          place.type === 'hotel'
+                            ? '#4a9eff'
+                            : place.type === 'campsite'
+                            ? '#4ac864'
+                            : place.type === 'geothermal-pool'
+                            ? '#64b4ff'
+                            : '#f5a623',
                       }}
                     >
-                      {place.type}
+                      {place.type === 'geothermal-pool' ? 'pool' : place.type}
                     </span>
                     <span style={{ color: '#8a8f9e', fontSize: 12, marginLeft: 'auto' }}>
                       {place.priceRange}
@@ -235,12 +248,19 @@ export default function PlacesTab() {
                     {place.name}
                   </div>
 
-                  {/* Row 3: Cuisine */}
-                  {place.cuisine && (
-                    <div style={{ color: '#8a8f9e', fontSize: 11, fontStyle: 'italic' }}>
-                      {place.cuisine}
-                    </div>
-                  )}
+                  {/* Row 3: Cuisine or opening hours */}
+                  {(place.type === 'campsite' || place.type === 'geothermal-pool')
+                    ? place.openingHours && (
+                        <div style={{ color: '#8a8f9e', fontSize: 11 }}>
+                          🕐 {place.openingHours}
+                        </div>
+                      )
+                    : place.cuisine && (
+                        <div style={{ color: '#8a8f9e', fontSize: 11, fontStyle: 'italic' }}>
+                          {place.cuisine}
+                        </div>
+                      )
+                  }
 
                   {/* Row 4: Description (2-line clamp) */}
                   <div

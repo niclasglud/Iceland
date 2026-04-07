@@ -5,6 +5,7 @@ import { MapPin, Trash2, Copy, CheckCheck, Plus, ChevronDown, ChevronUp } from '
 import type { CustomTripStop } from '@/types'
 import { saveTrip, clearTrip, formatTripAsText } from '@/data/custom-trip'
 import TripStopCard from './TripStopCard'
+import { estimateCost, type CostPrefs, type VehicleType, type AccomType, type FoodBudget } from '@/lib/cost-estimator'
 
 interface TripPlannerProps {
   stops: CustomTripStop[]
@@ -15,9 +16,29 @@ interface TripPlannerProps {
 const DAY_COLORS = ['#4a9eff', '#f5a623', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#f97316']
 const getDayColor = (day: number) => DAY_COLORS[(day - 1) % DAY_COLORS.length]
 
+const VEHICLE_OPTIONS: { id: VehicleType; label: string }[] = [
+  { id: 'small-car', label: 'Small Car' },
+  { id: 'suv', label: 'SUV' },
+  { id: 'campervan', label: 'Campervan' },
+  { id: '4wd', label: '4WD' },
+]
+const ACCOM_OPTIONS: { id: AccomType; label: string }[] = [
+  { id: 'camping', label: 'Camping' },
+  { id: 'guesthouse', label: 'Guesthouse' },
+  { id: 'hotel', label: 'Hotel' },
+  { id: 'luxury', label: 'Luxury' },
+]
+const FOOD_OPTIONS: { id: FoodBudget; label: string }[] = [
+  { id: 'self-catering', label: 'Self-catering' },
+  { id: 'mixed', label: 'Mixed' },
+  { id: 'restaurants', label: 'Restaurants' },
+]
+
 export default function TripPlanner({ stops, onStopsChange, onSwitchToSpots }: TripPlannerProps) {
   const [copied, setCopied] = useState(false)
   const [collapsedDays, setCollapsedDays] = useState<Set<number>>(new Set())
+  const [costOpen, setCostOpen] = useState(false)
+  const [costPrefs, setCostPrefs] = useState<CostPrefs>({ vehicle: 'small-car', accommodation: 'guesthouse', food: 'mixed' })
 
   const byDay = stops.reduce<Record<number, CustomTripStop[]>>((acc, s) => {
     if (!acc[s.day]) acc[s.day] = []
@@ -131,6 +152,78 @@ export default function TripPlanner({ stops, onStopsChange, onSwitchToSpots }: T
           Clear
         </button>
       </div>
+
+      {/* Cost Estimate (show when 2+ stops) */}
+      {stops.length >= 2 && (
+        <div style={{ flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <button
+            onClick={() => setCostOpen((v) => !v)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#f5a623' }}>💰 Cost Estimate</span>
+            {costOpen ? <ChevronUp size={14} color="#5a5f6e" /> : <ChevronDown size={14} color="#5a5f6e" />}
+          </button>
+          {costOpen && (() => {
+            const breakdown = estimateCost(stops, costPrefs)
+            const pillStyle = (active: boolean): React.CSSProperties => ({
+              borderRadius: 9999, padding: '3px 10px', fontSize: 11, fontWeight: active ? 600 : 400,
+              background: active ? 'rgba(245,166,35,0.2)' : 'rgba(255,255,255,0.06)',
+              color: active ? '#f5a623' : '#8a8f9e', border: active ? '1px solid rgba(245,166,35,0.4)' : '1px solid transparent',
+              cursor: 'pointer',
+            })
+            return (
+              <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Vehicle */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#5a5f6e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>🚗 Vehicle</div>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {VEHICLE_OPTIONS.map(({ id, label }) => (
+                      <button key={id} onClick={() => setCostPrefs((p) => ({ ...p, vehicle: id }))} style={pillStyle(costPrefs.vehicle === id)}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                {/* Accommodation */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#5a5f6e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>🏕 Stay</div>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {ACCOM_OPTIONS.map(({ id, label }) => (
+                      <button key={id} onClick={() => setCostPrefs((p) => ({ ...p, accommodation: id }))} style={pillStyle(costPrefs.accommodation === id)}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                {/* Food */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#5a5f6e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>🍽 Food</div>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {FOOD_OPTIONS.map(({ id, label }) => (
+                      <button key={id} onClick={() => setCostPrefs((p) => ({ ...p, food: id }))} style={pillStyle(costPrefs.food === id)}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                {/* Breakdown grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 2 }}>
+                  {[
+                    { icon: '⛽', label: 'Fuel', val: breakdown.fuel },
+                    { icon: '🏠', label: 'Stay', val: breakdown.accommodation },
+                    { icon: '🍽', label: 'Food', val: breakdown.food },
+                    { icon: '🎯', label: 'Activities', val: breakdown.activities },
+                  ].map(({ icon, label, val }) => (
+                    <div key={label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '8px 10px' }}>
+                      <div style={{ fontSize: 11, color: '#5a5f6e' }}>{icon} {label}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#f5f5f5', marginTop: 2 }}>€{val}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Total */}
+                <div style={{ textAlign: 'center', paddingTop: 4 }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#f5a623' }}>~€{breakdown.total} estimated total</div>
+                  <div style={{ fontSize: 11, color: '#5a5f6e', marginTop: 3 }}>Based on {breakdown.nights} nights · {breakdown.totalKm} km · 1 person</div>
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+      )}
 
       {/* Days scroll */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 12px 48px' }}>
