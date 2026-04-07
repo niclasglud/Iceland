@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import OfflineBanner from '@/components/layout/OfflineBanner'
+import UpdateBanner from '@/components/layout/UpdateBanner'
 
 export const metadata: Metadata = {
   title: 'Iceland Explorer — Spots, 3D Map & Northern Lights',
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="overflow-hidden bg-[#0a0b0e] text-white antialiased">
         <OfflineBanner />
+        <UpdateBanner />
         {children}
       </body>
     </html>
