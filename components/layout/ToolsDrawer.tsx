@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useUpdateReady } from '@/lib/use-update-ready'
 import {
   X,
   Navigation,
@@ -234,6 +235,7 @@ export default function ToolsDrawer({
   showCloudCover,
   onNavigate,
 }: ToolsDrawerProps) {
+  const updateReady = useUpdateReady()
   const [fromMode, setFromMode] = useState<'current' | 'search'>('current')
   const [fromSearch, setFromSearch] = useState('')
   const [fromLoc, setFromLoc] = useState<Location | null>(null)
@@ -880,17 +882,30 @@ export default function ToolsDrawer({
               SECTION 6: App Settings
           ──────────────────────────────────────────── */}
           <Section icon={<Settings size={15} />} title="App Settings">
+            {updateReady && (
+              <style>{`
+                @keyframes glow-pulse {
+                  0%,100% { box-shadow: 0 0 8px 2px rgba(245,166,35,0.55); }
+                  50%      { box-shadow: 0 0 20px 6px rgba(245,166,35,0.9); }
+                }
+              `}</style>
+            )}
             <button
               onClick={() => window.location.reload()}
-              className="flex items-center justify-center gap-2 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors"
-              style={{
+              className="flex items-center justify-center gap-2 w-full rounded-lg py-2.5 text-sm font-semibold"
+              style={updateReady ? {
+                background: '#f5a623',
+                border: '1px solid #f5a623',
+                color: '#0a0b0e',
+                animation: 'glow-pulse 2s ease-in-out infinite',
+              } : {
                 background: 'rgba(255,255,255,0.06)',
                 border: '1px solid rgba(255,255,255,0.12)',
                 color: '#e2e4ea',
               }}
             >
-              <span>↻</span>
-              Refresh App
+              <span>{updateReady ? '✨' : '↻'}</span>
+              {updateReady ? 'Update Ready — Tap to Reload' : 'Refresh App'}
             </button>
           </Section>
 
