@@ -1,53 +1,49 @@
 import { useEffect, useState } from 'react'
 
-const POLL_MS = 60_000 // check every minute
+const POLL_MS = 30_000 // check every 30 seconds
 
 export function useUpdateReady() {
   const [updateReady, setUpdateReady] = useState(false)
 
   useEffect(() => {
-    let initial: string | null = null
+    // Next.js 14 always embeds __NEXT_DATA__ with the current buildId
+    const buildId = (window as unknown as { __NEXT_DATA__?: { buildId?: string } })
+      .__NEXT_DATA__?.buildId
+
+    if (!buildId) return
+
     let active = true
 
     const check = async () => {
       if (!active) return
       try {
-        const res = await fetch('/api/version', { cache: 'no-store' })
-        if (!res.ok) return
-        const { v } = (await res.json()) as { v: string }
-        if (!v) return
-        if (initial === null) {
-          // First call — store the baseline version for this page load
-          initial = v
-          return
-        }
-        if (v !== initial) {
+        // HEAD the current build's manifest — 404 means a new deploy replaced it
+        const res = await fetch(
+          `/_next/static/${buildId}/_buildManifest.js`,
+          { method: 'HEAD', cache: 'no-store' },
+        )
+        if (res.status === 404) {
           setUpdateReady(true)
         }
       } catch {
-        // Offline or server error — ignore silently
+        // Network error / offline — ignore
       }
     }
 
-    // Immediate baseline fetch, then poll
-    check()
     const timer = setInterval(check, POLL_MS)
 
-    // Also re-check whenever the user returns to the tab
     const onVisible = () => {
       if (document.visibilityState === 'visible') check()
     }
     document.addEventListener('visibilitychange', onVisible)
 
-    // SW-based instant detection as a bonus (fires right when the new SW
-    // takes control, no polling delay needed)
+    // Instant signal from service worker (bonus, catches updates immediately)
     if ('serviceWorker' in navigator) {
       let hadController = !!navigator.serviceWorker.controller
-      const onControllerChange = () => {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hadController) setUpdateReady(true)
         hadController = true
-      }
-      navigator.serviceWorker.addEventListener('controllerchange', onControllerChange)
+      })
     }
 
     return () => {
