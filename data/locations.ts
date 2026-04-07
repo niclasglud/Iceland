@@ -384,7 +384,7 @@ export const locations: Location[] = [
     id: 'vestrahorn',
     name: 'Vestrahorn',
     icelandicName: 'Vestrahorn',
-    coordinates: [-13.726, 64.244],
+    coordinates: [-14.958, 64.262],
     elevation: 454,
     region: 'east',
     type: 'mountain',
