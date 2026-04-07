@@ -78,30 +78,32 @@ export default function PlacesTab() {
       </div>
 
       {/* Type filter pills */}
-      <div style={{ display: 'flex', gap: 8, padding: '8px 12px', flexShrink: 0 }}>
-        {TYPE_LABELS.map(({ id, label }) => {
-          const active = typeFilter === id
-          const count = id === 'all' ? places.length : countByType[id] || 0
-          return (
-            <button
-              key={id}
-              onClick={() => setTypeFilter(id)}
-              style={{
-                borderRadius: 9999,
-                padding: '4px 12px',
-                fontSize: 12,
-                fontWeight: active ? 600 : 400,
-                background: active ? '#f5a623' : 'rgba(255,255,255,0.06)',
-                color: active ? '#0a0b0e' : '#8a8f9e',
-                border: 'none',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {label} ({count})
-            </button>
-          )
-        })}
+      <div style={{ overflowX: 'auto', scrollbarWidth: 'none', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8, padding: '8px 12px', width: 'max-content' }}>
+          {TYPE_LABELS.map(({ id, label }) => {
+            const active = typeFilter === id
+            const count = id === 'all' ? places.length : countByType[id] || 0
+            return (
+              <button
+                key={id}
+                onClick={() => setTypeFilter(id)}
+                style={{
+                  borderRadius: 9999,
+                  padding: '4px 12px',
+                  fontSize: 12,
+                  fontWeight: active ? 600 : 400,
+                  background: active ? '#f5a623' : 'rgba(255,255,255,0.06)',
+                  color: active ? '#0a0b0e' : '#8a8f9e',
+                  border: 'none',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {label} ({count})
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Region filter pills */}
